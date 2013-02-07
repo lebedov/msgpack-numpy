@@ -15,17 +15,18 @@ native complex data types is also supported.
 Installation
 ------------
 
-If you have `pip <http://www.pip-installer.org/>`_ installed on your
+msgpack_numpy requires msgpack-python and numpy. If you 
+have `pip <http://www.pip-installer.org/>`_ installed on your
 system, run ::
 
     pip install msgpack_numpy
 
-You can also download the source tarball, unpack, and run ::
+to install the package and all dependencies. You can also download 
+the source tarball, unpack it, and run ::
 
     python setup.py install
 
-from within the source directory. The package requires 
-msgpack-python and numpy.
+from within the source directory.
 
 Usage
 -----
@@ -50,8 +51,8 @@ decoder provided by msgpack_numpy to the msgpack routines: ::
     x_enc = msgpack.packb(x, default=m.encoder)
     x_rec = msgpack.unpackb(x_enc, object_hook=m.decoder)
 
-Authors & Acknowledgemnts
--------------------------
+Authors
+-------
 
 This software was written and packaged by `Lev Givon <lev@columbia.edu>`_.
 
@@ -60,7 +61,7 @@ License
 
 This software is licensed under the 
 `BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
-See the included LICENSE file for more information.
+See the included LICENSE.rst file for more information.
 
 Development
 -----------

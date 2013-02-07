@@ -16,11 +16,11 @@ Installation
 ------------
 
 If you have `pip <http://www.pip-installer.org/>`_ installed on your
-system, run
+system, run ::
 
     pip install msgpack_numpy
 
-You can also download the source tarball, unpack, and run
+You can also download the source tarball, unpack, and run ::
 
     python setup.py install
 
@@ -31,7 +31,7 @@ Usage
 -----
 
 The easiest way to use msgpack_numpy is to call its monkey patching
-function after importing the Python msgpack package:
+function after importing the Python msgpack package: ::
 
     import msgpack
     import msgpack_numpy as m
@@ -40,7 +40,7 @@ function after importing the Python msgpack package:
 This will automatically force all msgpack serialization and deserialization
 routines (and other packages that use them) to become numpy-aware. 
 Of course, one can also manually pass the encoder and 
-decoder provided by msgpack_numpy to the msgpack routines:
+decoder provided by msgpack_numpy to the msgpack routines: ::
 
     import msgpack
     import msgpack_numpy as m

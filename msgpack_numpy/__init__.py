@@ -19,7 +19,7 @@ def encode(obj):
     """
     Data encoder for serializing numpy data types.
     """
-    
+
     if isinstance(obj, np.ndarray):
         return {'ndarray': True,
                 'shape': obj.shape,
@@ -52,7 +52,7 @@ def c2f(r, i, ctype_name):
     """
     Convert strings to complex number instance with specified numpy type.
     """
-    
+
     ftype = c2f_dict[ctype_name]
     return np.typeDict[ctype_name](ftype(r)+1j*ftype(i))
 
@@ -60,7 +60,7 @@ def decode(obj):
     """
     Decoder for deserializing numpy data types.
     """
-    
+
     if 'ndarray' in obj:
         return np.array(obj['data'],
                         dtype=np.typeDict[obj['type']],
@@ -101,17 +101,29 @@ class Unpacker(_unpacker.Unpacker):
 
 def pack(o, stream, default=encode, 
          encoding='utf-8', unicode_errors='strict'):
+    """
+    Pack an object and write it to a stream.
+    """
+
     _packer.pack(o, stream, default=default, 
                   encoding=encoding,
                   unicode_errors=unicode_errors)
 def packb(o, default=encode, 
           encoding='utf-8', unicode_errors='strict', use_single_float=False):
+    """
+    Pack an object and return the packed bytes.
+    """
+
     return _packer.packb(o, default=default, encoding=encoding,
                           unicode_errors=unicode_errors, 
                           use_single_float=use_single_float)
 
 def unpack(stream, object_hook=decode, list_hook=None, use_list=None,
            encoding=None, unicode_errors='strict', object_pairs_hook=None):
+    """
+    Unpack a packed object from a stream.
+    """
+
     return _unpacker.unpack(stream, object_hook=object_hook,
                            list_hook=list_hook, use_list=use_list, 
                            encoding=encoding,
@@ -120,6 +132,10 @@ def unpack(stream, object_hook=decode, list_hook=None, use_list=None,
 def unpackb(packed, object_hook=decode, 
             list_hook=None, use_list=None, encoding=None,
             unicode_errors='strict', object_pairs_hook=None):
+    """
+    Unpack a packed object.
+    """
+
     return _unpacker.unpackb(packed, object_hook=object_hook,
                             list_hook=list_hook, 
                             use_list=use_list, encoding=encoding,
@@ -130,7 +146,7 @@ def patch():
     """
     Monkey patch msgpack module to enable support for serializing numpy types.
     """
-    
+
     setattr(msgpack, 'Packer', Packer)
     setattr(msgpack, 'Unpacker', Unpacker)
     setattr(msgpack, 'load', unpack)
@@ -141,7 +157,7 @@ def patch():
     setattr(msgpack, 'packb', packb)
     setattr(msgpack, 'unpack', unpack)
     setattr(msgpack, 'unpackb', unpackb)
-    
+
 if __name__ == '__main__':
     from unittest import main, TestCase, TestSuite
 
@@ -150,7 +166,7 @@ if __name__ == '__main__':
              patch()
         def encode_decode(self, x):
             x_enc = msgpack.packb(x)
-            return msgpack.unpackb(x_enc)            
+            return msgpack.unpackb(x_enc)
         def test_numpy_scalar_float(self):
             x = np.float32(np.random.rand())
             x_rec = self.encode_decode(x)
@@ -193,22 +209,22 @@ if __name__ == '__main__':
             x = {'foo': 1.0, 'bar': 2.0}
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
-                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))       
+                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
         def test_dict_complex(self):
             x = {'foo': 1.0+1.0j, 'bar': 2.0+2.0j}
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
-                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))  
+                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
         def test_dict_numpy_float(self):
             x = {'foo': np.float32(1.0), 'bar': np.float32(2.0)}
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
-                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))       
+                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
         def test_dict_numpy_complex(self):
             x = {'foo': np.complex128(1.0+1.0j), 'bar': np.complex128(2.0+2.0j)}
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
-                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))  
+                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
         def test_numpy_array_float(self):
             x = np.random.rand(5).astype(np.float32)
             x_rec = self.encode_decode(x)
@@ -224,6 +240,6 @@ if __name__ == '__main__':
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x, x_rec)) and \
                            all(map(lambda x,y: type(x) == type(y), x, x_rec))
-                
+
     main()
-    
+

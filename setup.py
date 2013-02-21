@@ -16,7 +16,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 NAME =               'msgpack_numpy'
-VERSION =            '0.01'
+VERSION =            '0.02'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://github.com/lebedov/msgpack_numpy'
@@ -62,5 +62,5 @@ if __name__ == "__main__":
         data_files = [('msgpack_numpy', ['msgpack_numpy/__init__.py'])],
         include_package_data = True,
         install_requires = ['numpy',
-                            'msgpack-python']
+                            'msgpack-python>=0.3.0']
         )

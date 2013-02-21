@@ -12,7 +12,8 @@ except ImportError:
 
 import numpy as np
 import msgpack
-import msgpack._msgpack as _msgpack
+import msgpack._packer as _packer
+import msgpack._unpacker as _unpacker
 
 def encode(obj):
     """
@@ -74,7 +75,7 @@ def decode(obj):
     else:
         return obj
 
-class Packer(_msgpack.Packer):
+class Packer(_packer.Packer):
     def __init__(self, default=encode, 
                  encoding='utf-8', 
                  unicode_errors='strict',
@@ -83,7 +84,7 @@ class Packer(_msgpack.Packer):
                                      encoding=encoding,
                                      unicode_errors=unicode_errors,
                                      use_single_float=use_single_float)
-class Unpacker(_msgpack.Unpacker):
+class Unpacker(_unpacker.Unpacker):
     def __init__(self, file_like=None, read_size=0, use_list=None,
                  object_hook=decode,
                  object_pairs_hook=None, list_hook=None, encoding=None,
@@ -100,18 +101,18 @@ class Unpacker(_msgpack.Unpacker):
 
 def pack(o, stream, default=encode, 
          encoding='utf-8', unicode_errors='strict'):
-    _msgpack.pack(o, stream, default=default, 
+    _packer.pack(o, stream, default=default, 
                   encoding=encoding,
                   unicode_errors=unicode_errors)
 def packb(o, default=encode, 
           encoding='utf-8', unicode_errors='strict', use_single_float=False):
-    return _msgpack.packb(o, default=default, encoding=encoding,
+    return _packer.packb(o, default=default, encoding=encoding,
                           unicode_errors=unicode_errors, 
                           use_single_float=use_single_float)
 
 def unpack(stream, object_hook=decode, list_hook=None, use_list=None,
            encoding=None, unicode_errors='strict', object_pairs_hook=None):
-    return _msgpack.unpack(stream, object_hook=object_hook,
+    return _unpacker.unpack(stream, object_hook=object_hook,
                            list_hook=list_hook, use_list=use_list, 
                            encoding=encoding,
                            unicode_errors=unicode_errors,
@@ -119,7 +120,7 @@ def unpack(stream, object_hook=decode, list_hook=None, use_list=None,
 def unpackb(packed, object_hook=decode, 
             list_hook=None, use_list=None, encoding=None,
             unicode_errors='strict', object_pairs_hook=None):
-    return _msgpack.unpackb(packed, object_hook=object_hook,
+    return _unpacker.unpackb(packed, object_hook=object_hook,
                             list_hook=list_hook, 
                             use_list=use_list, encoding=encoding,
                             unicode_errors=unicode_errors, 

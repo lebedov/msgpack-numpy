@@ -142,6 +142,11 @@ def unpackb(packed, object_hook=decode,
                             unicode_errors=unicode_errors, 
                             object_pairs_hook=object_pairs_hook)
 
+load = unpack
+loads = unpackb
+dump = pack
+dumps = packb
+
 def patch():
     """
     Monkey patch msgpack module to enable support for serializing numpy types.

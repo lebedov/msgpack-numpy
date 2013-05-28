@@ -44,8 +44,10 @@ def encode(obj):
 
 c2f_dict = {'complex': np.float64,
             'complex128': np.float64,
-            'complex256': np.float128,
             'complex64': np.float32}
+if hasattr(np, 'float128'):
+    c2f_dict['complex256'] = np.float128
+    
 def c2f(r, i, ctype_name):
     """
     Convert strings to complex number instance with specified numpy type.

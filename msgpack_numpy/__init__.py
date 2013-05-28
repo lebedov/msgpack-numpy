@@ -19,28 +19,26 @@ def encode(obj):
     """
     Data encoder for serializing numpy data types.
     """
-
     if isinstance(obj, np.ndarray):
-        return {'ndarray': True,
-                'shape': obj.shape,
-                'ndim': obj.ndim,
+        return {'nd': True,
                 'type': obj.dtype.name,
-                'data': obj.tolist()}
+                'shape': obj.shape,
+                'data': obj.tostring()}
     elif isinstance(obj, np.number):
         if np.iscomplexobj(obj):
             return {'np': True,
                     'complex': True,
                     'type': obj.dtype.name,
-                    'real': obj.real.__repr__(),
-                    'imag': obj.imag.__repr__()}
+                    'r': obj.real.__repr__(),
+                    'i': obj.imag.__repr__()}
         else:
             return {'np': True,
                     'type': obj.dtype.name,
                     'data': obj.__repr__()}
     elif isinstance(obj, complex):
         return {'complex': True,
-                'real': obj.real.__repr__(),
-                'imag': obj.imag.__repr__()}
+                'r': obj.real.__repr__(),
+                'i': obj.imag.__repr__()}
     else:
         return obj
 
@@ -61,17 +59,16 @@ def decode(obj):
     Decoder for deserializing numpy data types.
     """
 
-    if 'ndarray' in obj:
-        return np.array(obj['data'],
-                        dtype=np.typeDict[obj['type']],
-                        ndmin=obj['ndim']).reshape(obj['shape'])
+    if 'nd' in obj:
+        return np.fromstring(obj['data'],
+                             dtype=np.typeDict[obj['type']]).reshape(obj['shape'])
     elif 'np' in obj:
         if 'complex' in obj:
-            return c2f(obj['real'], obj['imag'], obj['type'])
+            return c2f(obj['r'], obj['i'], obj['type'])
         else:
             return np.typeDict[obj['type']](obj['data'])
     elif 'complex' in obj:
-        return complex(obj['real']+'+'+obj['imag']+'j')
+        return complex(float(obj['r']), float(obj['i']))
     else:
         return obj
 
@@ -191,25 +188,20 @@ if __name__ == '__main__':
         def test_list_numpy_float(self):
             x = [np.float32(np.random.rand()) for i in xrange(5)]
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           all(map(lambda x,y: type(x) == type(y), x, x_rec))
+            assert all(map(lambda x, y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_numpy_float_complex(self):
             x = [np.float32(np.random.rand()) for i in xrange(5)] + \
               [np.complex128(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           all(map(lambda x,y: type(x) == type(y), x, x_rec))
+            assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_float(self):
             x = [np.random.rand() for i in xrange(5)]
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           all(map(lambda x,y: type(x) == type(y), x, x_rec))
+            assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_float_complex(self):
-            x = [np.random.rand() for i in xrange(5)] + \
-              [(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
+            x = [(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           all(map(lambda x,y: type(x) == type(y), x, x_rec))
+            assert all(map(lambda x, y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_dict_float(self):
             x = {'foo': 1.0, 'bar': 2.0}
             x_rec = self.encode_decode(x)
@@ -233,18 +225,19 @@ if __name__ == '__main__':
         def test_numpy_array_float(self):
             x = np.random.rand(5).astype(np.float32)
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                                         x.dtype == x_rec.dtype
+            assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_numpy_array_complex(self):
             x = (np.random.rand(5)+1j*np.random.rand(5)).astype(np.complex128)
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           x.dtype == x_rec.dtype
+            assert np.all(x == x_rec) and x.dtype == x_rec.dtype
+        def test_numpy_array_float_2d(self):
+            x = np.random.rand(5,5).astype(np.float32)
+            x_rec = self.encode_decode(x)
+            assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_list_mixed(self):
             x = [1.0, np.float32(3.5), np.complex128(4.25), 'foo']
             x_rec = self.encode_decode(x)
-            assert all(map(lambda x,y: x == y, x, x_rec)) and \
-                           all(map(lambda x,y: type(x) == type(y), x, x_rec))
+            assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
 
     main()
 

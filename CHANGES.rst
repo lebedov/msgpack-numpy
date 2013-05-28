@@ -6,6 +6,7 @@ Change Log
 Release 0.021 - ()
 ------------------
 * Improve encoding/decoding performance for arrays.
+* Fix numpy type support on different platforms (#3).
 
 Release 0.02 - (February 21, 2013)
 ----------------------------------

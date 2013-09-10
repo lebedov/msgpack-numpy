@@ -59,17 +59,20 @@ def decode(obj):
     Decoder for deserializing numpy data types.
     """
 
-    if 'nd' in obj:
-        return np.fromstring(obj['data'],
-                             dtype=np.dtype(obj['type'])).reshape(obj['shape'])
-    elif 'np' in obj:
-        if 'complex' in obj:
-            return c2f(obj['r'], obj['i'], np.dtype(obj['type']))
+    try:
+        if 'nd' in obj:
+            return np.fromstring(obj['data'],
+                                 dtype=np.dtype(obj['type'])).reshape(obj['shape'])
+        elif 'np' in obj:
+            if 'complex' in obj:
+                return c2f(obj['r'], obj['i'], np.dtype(obj['type']))
+            else:
+                return np.dtype(obj['type']).type(obj['data'])
+        elif 'complex' in obj:
+            return complex(obj['data'])
         else:
-            return np.dtype(obj['type']).type(obj['data'])
-    elif 'complex' in obj:
-        return complex(obj['data'])
-    else:
+            return obj
+    except KeyError:
         return obj
 
 class Packer(_packer.Packer):

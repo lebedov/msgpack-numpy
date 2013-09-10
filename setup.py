@@ -16,7 +16,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 NAME =               'msgpack_numpy'
-VERSION =            '0.021'
+VERSION =            '0.022'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'http://github.com/lebedov/msgpack_numpy'

@@ -21,32 +21,30 @@ def encode(obj):
     """
     if isinstance(obj, np.ndarray):
         return {'nd': True,
-                'type': obj.dtype.name,
+                'type': obj.dtype.str,
                 'shape': obj.shape,
                 'data': obj.tostring()}
     elif isinstance(obj, np.number):
         if np.iscomplexobj(obj):
             return {'np': True,
                     'complex': True,
-                    'type': obj.dtype.name,
+                    'type': obj.dtype.str,
                     'r': obj.real.__repr__(),
                     'i': obj.imag.__repr__()}
         else:
             return {'np': True,
-                    'type': obj.dtype.name,
+                    'type': obj.dtype.str,
                     'data': obj.__repr__()}
     elif isinstance(obj, complex):
         return {'complex': True,
-                'r': obj.real.__repr__(),
-                'i': obj.imag.__repr__()}
+                'data': obj.__repr__()}
     else:
         return obj
 
-c2f_dict = {'complex': np.float64,
-            'complex128': np.float64,
-            'complex64': np.float32}
+c2f_dict = {np.dtype('complex128'): np.float64,
+            np.dtype('complex64'): np.float32}
 if hasattr(np, 'float128'):
-    c2f_dict['complex256'] = np.float128
+    c2f_dict[np.dtype('complex256')] = np.float128
     
 def c2f(r, i, ctype_name):
     """
@@ -54,7 +52,7 @@ def c2f(r, i, ctype_name):
     """
 
     ftype = c2f_dict[ctype_name]
-    return np.typeDict[ctype_name](ftype(r)+1j*ftype(i))
+    return ctype_name.type(ftype(r)+1j*ftype(i))
 
 def decode(obj):
     """
@@ -63,14 +61,14 @@ def decode(obj):
 
     if 'nd' in obj:
         return np.fromstring(obj['data'],
-                             dtype=np.typeDict[obj['type']]).reshape(obj['shape'])
+                             dtype=np.dtype(obj['type'])).reshape(obj['shape'])
     elif 'np' in obj:
         if 'complex' in obj:
-            return c2f(obj['r'], obj['i'], obj['type'])
+            return c2f(obj['r'], obj['i'], np.dtype(obj['type']))
         else:
-            return np.typeDict[obj['type']](obj['data'])
+            return np.dtype(obj['type']).type(obj['data'])
     elif 'complex' in obj:
-        return complex(float(obj['r']), float(obj['i']))
+        return complex(obj['data'])
     else:
         return obj
 
@@ -204,6 +202,10 @@ if __name__ == '__main__':
             x = [(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x, y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
+        def test_list_str(self):
+            x = ['x'*i for i in xrange(5)]
+            x_rec = self.encode_decode(x)
+            assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_dict_float(self):
             x = {'foo': 1.0, 'bar': 2.0}
             x_rec = self.encode_decode(x)
@@ -211,6 +213,11 @@ if __name__ == '__main__':
                            all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
         def test_dict_complex(self):
             x = {'foo': 1.0+1.0j, 'bar': 2.0+2.0j}
+            x_rec = self.encode_decode(x)
+            assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
+                           all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
+        def test_dict_str(self):
+            x = {'foo': 'xxx', 'bar': 'yyyy'}
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x.values(), x_rec.values())) and \
                            all(map(lambda x,y: type(x) == type(y), x.values(), x_rec.values()))
@@ -234,6 +241,10 @@ if __name__ == '__main__':
             assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_numpy_array_float_2d(self):
             x = np.random.rand(5,5).astype(np.float32)
+            x_rec = self.encode_decode(x)
+            assert np.all(x == x_rec) and x.dtype == x_rec.dtype
+        def test_numpy_array_str(self):
+            x = np.array(['aaa', 'bbbb', 'ccccc'])
             x_rec = self.encode_decode(x)
             assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_list_mixed(self):

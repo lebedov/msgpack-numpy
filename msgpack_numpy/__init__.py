@@ -45,7 +45,7 @@ c2f_dict = {np.dtype('complex128'): np.float64,
             np.dtype('complex64'): np.float32}
 if hasattr(np, 'float128'):
     c2f_dict[np.dtype('complex256')] = np.float128
-    
+
 def c2f(r, i, ctype_name):
     """
     Convert strings to complex number instance with specified numpy type.
@@ -75,72 +75,98 @@ def decode(obj):
     except KeyError:
         return obj
 
-class Packer(_packer.Packer):
-    def __init__(self, default=encode, 
-                 encoding='utf-8', 
-                 unicode_errors='strict',
-                 use_single_float=False):
-        super(Packer, self).__init__(default=default, 
-                                     encoding=encoding,
-                                     unicode_errors=unicode_errors,
-                                     use_single_float=use_single_float)
-class Unpacker(_unpacker.Unpacker):
-    def __init__(self, file_like=None, read_size=0, use_list=None,
-                 object_hook=decode,
-                 object_pairs_hook=None, list_hook=None, encoding=None,
-                 unicode_errors='strict', max_buffer_size=0):
-        super(Unpacker, self).__init__(file_like=file_like, 
-                                       read_size=read_size,    
-                                       use_list=use_list, 
-                                       object_hook=object_hook, 
-                                       object_pairs_hook=object_pairs_hook, 
-                                       list_hook=list_hook,
-                                       encoding=encoding, 
-                                       unicode_errors=unicode_errors, 
-                                       max_buffer_size=max_buffer_size)
+# Maintain support for msgpack < 0.4.0:
+if msgpack.version < (0, 4, 0):
+    class Packer(_packer.Packer):
+        def __init__(self, default=encode,
+                     encoding='utf-8',
+                     unicode_errors='strict',
+                     use_single_float=False,
+                     autoreset=1):
+            super(Packer, self).__init__(default=default,
+                                         encoding=encoding,
+                                         unicode_errors=unicode_errors,
+                                         use_single_float=use_single_float,
+                                         autoreset=1)
+    class Unpacker(_unpacker.Unpacker):
+        def __init__(self, file_like=None, read_size=0, use_list=None,
+                     object_hook=decode,
+                     object_pairs_hook=None, list_hook=None, encoding=None,
+                     unicode_errors='strict', max_buffer_size=0):
+            super(Unpacker, self).__init__(file_like=file_like,
+                                           read_size=read_size,
+                                           use_list=use_list,
+                                           object_hook=object_hook,
+                                           object_pairs_hook=object_pairs_hook,
+                                           list_hook=list_hook,
+                                           encoding=encoding,
+                                           unicode_errors=unicode_errors,
+                                           max_buffer_size=max_buffer_size)
 
-def pack(o, stream, default=encode, 
-         encoding='utf-8', unicode_errors='strict'):
+else:
+    class Packer(_packer.Packer):
+        def __init__(self, default=encode,
+                     encoding='utf-8',
+                     unicode_errors='strict',
+                     use_single_float=False,
+                     autoreset=1,
+                     use_bin_type=0):
+            super(Packer, self).__init__(default=default,
+                                         encoding=encoding,
+                                         unicode_errors=unicode_errors,
+                                         use_single_float=use_single_float,
+                                         autoreset=1,
+                                         use_bin_type=0)
+
+    class Unpacker(_unpacker.Unpacker):
+        def __init__(self, file_like=None, read_size=0, use_list=None,
+                     object_hook=decode,
+                     object_pairs_hook=None, list_hook=None, encoding=None,
+                     unicode_errors='strict', max_buffer_size=0,
+                     ext_hook=msgpack.ExtType):
+            super(Unpacker, self).__init__(file_like=file_like,
+                                           read_size=read_size,
+                                           use_list=use_list,
+                                           object_hook=object_hook,
+                                           object_pairs_hook=object_pairs_hook,
+                                           list_hook=list_hook,
+                                           encoding=encoding,
+                                           unicode_errors=unicode_errors,
+                                           max_buffer_size=max_buffer_size,
+                                           ext_hook=ext_hook)
+
+def pack(o, stream, default=encode, **kwargs):
     """
     Pack an object and write it to a stream.
     """
 
-    _packer.pack(o, stream, default=default, 
-                  encoding=encoding,
-                  unicode_errors=unicode_errors)
-def packb(o, default=encode, 
-          encoding='utf-8', unicode_errors='strict', use_single_float=False):
+    kwargs['default'] = default
+    packer = Packer(**kwargs)
+    stream.write(packer.pack(o))
+
+def packb(o, default=encode, **kwargs):
     """
     Pack an object and return the packed bytes.
     """
 
-    return _packer.packb(o, default=default, encoding=encoding,
-                          unicode_errors=unicode_errors, 
-                          use_single_float=use_single_float)
+    kwargs['default'] = default
+    return Packer(**kwargs).pack(o)
 
-def unpack(stream, object_hook=decode, list_hook=None, use_list=None,
-           encoding=None, unicode_errors='strict', object_pairs_hook=None):
+def unpack(stream, object_hook=decode, **kwargs):
     """
     Unpack a packed object from a stream.
     """
 
-    return _unpacker.unpack(stream, object_hook=object_hook,
-                           list_hook=list_hook, use_list=use_list, 
-                           encoding=encoding,
-                           unicode_errors=unicode_errors,
-                           object_pairs_hook=object_pairs_hook)
-def unpackb(packed, object_hook=decode, 
-            list_hook=None, use_list=None, encoding=None,
-            unicode_errors='strict', object_pairs_hook=None):
+    kwargs['object_hook'] = object_hook
+    return _unpacker.unpack(stream, **kwargs)
+
+def unpackb(packed, object_hook=decode, **kwargs):
     """
     Unpack a packed object.
     """
 
-    return _unpacker.unpackb(packed, object_hook=object_hook,
-                            list_hook=list_hook, 
-                            use_list=use_list, encoding=encoding,
-                            unicode_errors=unicode_errors, 
-                            object_pairs_hook=object_pairs_hook)
+    kwargs['object_hook'] = object_hook
+    return _unpacker.unpackb(packed, **kwargs)
 
 load = unpack
 loads = unpackb

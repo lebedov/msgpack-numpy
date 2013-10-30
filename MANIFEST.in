@@ -1,2 +1,2 @@
-include CHANGES.rst LICENSE.rst README.rst
+include *.rst
 exclude MANIFEST.in

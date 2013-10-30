@@ -15,11 +15,11 @@ from distutils.command.install_headers import install_headers
 from setuptools import find_packages
 from setuptools import setup
 
-NAME =               'msgpack_numpy'
-VERSION =            '0.022'
+NAME =               'msgpack-numpy'
+VERSION =            '0.03'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
-URL =                'http://github.com/lebedov/msgpack_numpy'
+URL =                'http://github.com/lebedov/msgpack-numpy'
 DESCRIPTION =        'Numpy data serialization using msgpack'
 LONG_DESCRIPTION =   DESCRIPTION
 DOWNLOAD_URL =       URL

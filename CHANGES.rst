@@ -3,6 +3,11 @@
 Change Log
 ==========
 
+Release 0.3.1 - (March 2, 2014)
+-------------------------------
+* Switch to PEP 440 version numbering.
+* Update to setuptools 2.2 ez_setup.py
+
 Release 0.03 - (October 30, 2013)
 ---------------------------------
 * Add support for msgpack 0.4.0.

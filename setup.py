@@ -3,11 +3,10 @@
 import sys, os
 from glob import glob
 
-# Install setuptools if it isn't available:
 try:
     import setuptools
 except ImportError:
-    from distribute_setup import use_setuptools
+    from ez_setup import use_setuptools
     use_setuptools()
 
 from distutils.command.install import INSTALL_SCHEMES
@@ -16,10 +15,10 @@ from setuptools import find_packages
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.03'
+VERSION =            '0.3.1'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
-URL =                'http://github.com/lebedov/msgpack-numpy'
+URL =                'https://github.com/lebedov/msgpack-numpy'
 DESCRIPTION =        'Numpy data serialization using msgpack'
 LONG_DESCRIPTION =   DESCRIPTION
 DOWNLOAD_URL =       URL

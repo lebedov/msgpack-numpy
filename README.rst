@@ -51,7 +51,11 @@ decoder provided by msgpack-numpy to the msgpack routines: ::
 Development
 -----------
 The latest source code can be obtained from
-`<http://github.com/lebedov/msgpack-numpy/>`_.
+`<https://github.com/lebedov/msgpack-numpy/>`_.
+
+Authors
+-------
+See the included AUTHORS file for more information.
 
 License
 -------

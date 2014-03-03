@@ -4,12 +4,6 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    from pkgutil import extend_path
-    __path__ = extend_path(__path__, __name__)
-
 import numpy as np
 import msgpack
 import msgpack._packer as _packer

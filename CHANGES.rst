@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.3.1.1 - (March 2, 2014)
+---------------------------------
+* Make package a simple module to fix dependency installation issues.
+
 Release 0.3.1 - (March 2, 2014)
 -------------------------------
 * Switch to PEP 440 version numbering.

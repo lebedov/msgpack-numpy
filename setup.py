@@ -12,7 +12,7 @@ except ImportError:
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.3.1.1'
+VERSION =            '0.3.2'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'
@@ -31,7 +31,7 @@ CLASSIFIERS = [
     'Topic :: Software Development']
 
 if __name__ == "__main__":
-    if os.path.exists('MANIFEST'): 
+    if os.path.exists('MANIFEST'):
         os.remove('MANIFEST')
 
     setup(

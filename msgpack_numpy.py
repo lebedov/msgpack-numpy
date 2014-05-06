@@ -19,34 +19,14 @@ def encode(obj):
                 'shape': obj.shape,
                 'data': obj.tostring()}
     elif isinstance(obj, np.number):
-        if np.iscomplexobj(obj):
-            return {'np': True,
-                    'complex': True,
-                    'type': obj.dtype.str,
-                    'r': obj.real.__repr__(),
-                    'i': obj.imag.__repr__()}
-        else:
-            return {'np': True,
-                    'type': obj.dtype.str,
-                    'data': obj.__repr__()}
+        return {'nd': False,
+                'type': obj.dtype.str,
+                'data': obj.tostring()}
     elif isinstance(obj, complex):
         return {'complex': True,
                 'data': obj.__repr__()}
     else:
         return obj
-
-c2f_dict = {np.dtype('complex128'): np.float64,
-            np.dtype('complex64'): np.float32}
-if hasattr(np, 'float128'):
-    c2f_dict[np.dtype('complex256')] = np.float128
-
-def c2f(r, i, ctype_name):
-    """
-    Convert strings to complex number instance with specified numpy type.
-    """
-
-    ftype = c2f_dict[ctype_name]
-    return ctype_name.type(ftype(r)+1j*ftype(i))
 
 def decode(obj):
     """
@@ -55,13 +35,12 @@ def decode(obj):
 
     try:
         if 'nd' in obj:
-            return np.fromstring(obj['data'],
-                                 dtype=np.dtype(obj['type'])).reshape(obj['shape'])
-        elif 'np' in obj:
-            if 'complex' in obj:
-                return c2f(obj['r'], obj['i'], np.dtype(obj['type']))
+            if obj['nd'] is True:
+                return np.fromstring(obj['data'],
+                            dtype=np.dtype(obj['type'])).reshape(obj['shape'])
             else:
-                return np.dtype(obj['type']).type(obj['data'])
+                return np.fromstring(obj['data'],
+                            dtype=np.dtype(obj['type']))[0]
         elif 'complex' in obj:
             return complex(obj['data'])
         else:

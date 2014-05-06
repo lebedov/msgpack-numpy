@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.3.2 - (May 6, 2014)
+-----------------------------
+* Simplify encoding/decoding of numpy scalars.
+
 Release 0.3.1.1 - (March 2, 2014)
 ---------------------------------
 * Make package a simple module to fix dependency installation issues.

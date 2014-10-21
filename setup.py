@@ -12,7 +12,7 @@ except ImportError:
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.3.2'
+VERSION =            '0.3.3'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'

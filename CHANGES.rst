@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.3.3 - (October 21, 2014)
+----------------------------------
+* Add missing ez_setup.py file.
+
 Release 0.3.2 - (May 6, 2014)
 -----------------------------
 * Simplify encoding/decoding of numpy scalars.

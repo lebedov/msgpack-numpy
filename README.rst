@@ -11,6 +11,9 @@ serialization and deserialization of numerical and array data types provided by
 `msgpack <http://msgpack.org/>`_ format. Serialization of Python's
 native complex data types is also supported.
 
+.. image:: https://pypip.in/version/msgpack-numpy/badge.png
+    :target: https://pypi.python.org/pypi/msgpack-numpy
+    :alt: Latest Version
 .. image:: https://pypip.in/d/msgpack-numpy/badge.png
     :target: https://pypi.python.org/pypi/msgpack-numpy
     :alt: Downloads

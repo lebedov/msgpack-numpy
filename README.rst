@@ -52,8 +52,8 @@ decoder provided by msgpack-numpy to the msgpack routines: ::
     import numpy as np
 
     x = np.random.rand(5)
-    x_enc = msgpack.packb(x, default=m.encoder)
-    x_rec = msgpack.unpackb(x_enc, object_hook=m.decoder)
+    x_enc = msgpack.packb(x, default=m.encode)
+    x_rec = msgpack.unpackb(x_enc, object_hook=m.decode)
 
 Development
 -----------

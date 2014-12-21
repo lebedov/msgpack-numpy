@@ -58,7 +58,7 @@ decoder provided by msgpack-numpy to the msgpack routines: ::
 Development
 -----------
 The latest source code can be obtained from
-`<https://github.com/lebedov/msgpack-numpy/>`_.
+`GitHub <https://github.com/lebedov/msgpack-numpy/>`_.
 
 Authors
 -------
@@ -66,6 +66,6 @@ See the included AUTHORS file for more information.
 
 License
 -------
-This software is licensed under the 
-`BSD License <http://www.opensource.org/licenses/bsd-license.php>`_.
+This software is licensed under the `BSD License 
+<http://www.opensource.org/licenses/bsd-license>`_.
 See the included LICENSE.rst file for more information.

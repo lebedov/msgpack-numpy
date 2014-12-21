@@ -4,6 +4,11 @@
 Support for serialization of numpy data types with msgpack.
 """
 
+# Copyright (c) 2013-2014, Lev Givon
+# All rights reserved.
+# Distributed under the terms of the BSD license:
+# http://www.opensource.org/licenses/bsd-license
+
 import numpy as np
 import msgpack
 import msgpack._packer as _packer

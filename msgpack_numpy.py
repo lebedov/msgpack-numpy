@@ -23,7 +23,7 @@ def encode(obj):
                 'type': obj.dtype.str,
                 'shape': obj.shape,
                 'data': obj.tostring()}
-    elif isinstance(obj, np.number):
+    elif isinstance(obj, (np.bool_, np.number)):
         return {'nd': False,
                 'type': obj.dtype.str,
                 'data': obj.tostring()}

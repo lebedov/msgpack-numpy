@@ -23,7 +23,7 @@ def encode(obj):
                 'type': obj.dtype.str,
                 'shape': obj.shape,
                 'data': obj.tostring()}
-    elif isinstance(obj, np.number):
+    elif isinstance(obj, (np.bool_, np.number)):
         return {'nd': False,
                 'type': obj.dtype.str,
                 'data': obj.tostring()}
@@ -176,6 +176,13 @@ if __name__ == '__main__':
         def encode_decode(self, x):
             x_enc = msgpack.packb(x)
             return msgpack.unpackb(x_enc)
+        def test_numpy_scalar_bool(self):
+            x = np.bool_(True)
+            x_rec = self.encode_decode(x)
+            assert x == x_rec and type(x) == type(x_rec)
+            x = np.bool_(False)
+            x_rec = self.encode_decode(x)
+            assert x == x_rec and type(x) == type(x_rec)
         def test_numpy_scalar_float(self):
             x = np.float32(np.random.rand())
             x_rec = self.encode_decode(x)

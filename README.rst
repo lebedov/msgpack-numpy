@@ -35,7 +35,7 @@ from within the source directory.
 
 Usage
 -----
-The easiest way to use msgpack_numpy is to call its monkey patching
+The easiest way to use msgpack-numpy is to call its monkey patching
 function after importing the Python msgpack package: ::
 
     import msgpack

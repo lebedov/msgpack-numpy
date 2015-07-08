@@ -4,15 +4,27 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2014, Lev Givon
+# Copyright (c) 2013-2015, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
 
+import os
+
 import numpy as np
 import msgpack
-import msgpack._packer as _packer
-import msgpack._unpacker as _unpacker
+
+# Fall back to pure Python
+if os.environ.get('MSGPACK_PUREPYTHON'):
+    import msgpack.fallback as _packer
+    import msgpack.fallback as _unpacker
+else:
+    try:
+        import msgpack._packer as _packer
+        import msgpack._unpacker as _unpacker
+    except:
+        import msgpack.fallback as _packer
+        import msgpack.fallback as _unpacker
 
 def encode(obj):
     """

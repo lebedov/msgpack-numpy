@@ -55,6 +55,11 @@ decoder provided by msgpack-numpy to the msgpack routines: ::
     x_enc = msgpack.packb(x, default=m.encode)
     x_rec = msgpack.unpackb(x_enc, object_hook=m.decode)
 
+msgpack-numpy will try to use the binary (fast) extension in msgpack by default.  
+If msgpack was not compiled with Cython (or if the ``MSGPACK_PUREPYTHON`` 
+variable is set), it will fall back to using the slower pure Python msgpack 
+implementation.
+
 Development
 -----------
 The latest source code can be obtained from
@@ -62,10 +67,14 @@ The latest source code can be obtained from
 
 Authors
 -------
-See the included AUTHORS file for more information.
+See the included `AUTHORS.rst`_ file for more information.
+
+.. _AUTHORS.rst: AUTHORS.rst
 
 License
 -------
 This software is licensed under the `BSD License 
 <http://www.opensource.org/licenses/bsd-license>`_.
-See the included LICENSE.rst file for more information.
+See the included `LICENSE.rst`_ file for more information.
+
+.. _LICENSE.rst: LICENSE.rst

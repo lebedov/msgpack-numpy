@@ -81,7 +81,7 @@ if msgpack.version < (0, 4, 0):
     class Unpacker(_unpacker.Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
                      object_hook=decode,
-                     object_pairs_hook=None, list_hook=None, encoding=None,
+                     object_pairs_hook=None, list_hook=None, encoding='utf-8',
                      unicode_errors='strict', max_buffer_size=0):
             super(Unpacker, self).__init__(file_like=file_like,
                                            read_size=read_size,
@@ -100,18 +100,18 @@ else:
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
-                     use_bin_type=0):
+                     use_bin_type=1):
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
                                          use_single_float=use_single_float,
                                          autoreset=1,
-                                         use_bin_type=0)
+                                         use_bin_type=1)
 
     class Unpacker(_unpacker.Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
                      object_hook=decode,
-                     object_pairs_hook=None, list_hook=None, encoding=None,
+                     object_pairs_hook=None, list_hook=None, encoding='utf-8',
                      unicode_errors='strict', max_buffer_size=0,
                      ext_hook=msgpack.ExtType):
             super(Unpacker, self).__init__(file_like=file_like,
@@ -142,21 +142,21 @@ def packb(o, default=encode, **kwargs):
     kwargs['default'] = default
     return Packer(**kwargs).pack(o)
 
-def unpack(stream, object_hook=decode, **kwargs):
+def unpack(stream, object_hook=decode, encoding='utf-8', **kwargs):
     """
     Unpack a packed object from a stream.
     """
 
     kwargs['object_hook'] = object_hook
-    return _unpacker.unpack(stream, **kwargs)
+    return _unpacker.unpack(stream, encoding=encoding, **kwargs)
 
-def unpackb(packed, object_hook=decode, **kwargs):
+def unpackb(packed, object_hook=decode, encoding='utf-8', **kwargs):
     """
     Unpack a packed object.
     """
 
     kwargs['object_hook'] = object_hook
-    return _unpacker.unpackb(packed, **kwargs)
+    return _unpacker.unpackb(packed, encoding=encoding, **kwargs)
 
 load = unpack
 loads = unpackb
@@ -180,6 +180,11 @@ def patch():
     setattr(msgpack, 'unpackb', unpackb)
 
 if __name__ == '__main__':
+    try:
+        range = xrange # Python 2
+    except NameError:
+        pass # Python 3
+
     from unittest import main, TestCase, TestSuite
 
     class test_numpy_msgpack(TestCase):
@@ -212,24 +217,24 @@ if __name__ == '__main__':
             x_rec = self.encode_decode(x)
             assert x == x_rec and type(x) == type(x_rec)
         def test_list_numpy_float(self):
-            x = [np.float32(np.random.rand()) for i in xrange(5)]
+            x = [np.float32(np.random.rand()) for i in range(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x, y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_numpy_float_complex(self):
-            x = [np.float32(np.random.rand()) for i in xrange(5)] + \
-              [np.complex128(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
+            x = [np.float32(np.random.rand()) for i in range(5)] + \
+              [np.complex128(np.random.rand()+1j*np.random.rand()) for i in range(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_float(self):
-            x = [np.random.rand() for i in xrange(5)]
+            x = [np.random.rand() for i in range(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_float_complex(self):
-            x = [(np.random.rand()+1j*np.random.rand()) for i in xrange(5)]
+            x = [(np.random.rand()+1j*np.random.rand()) for i in range(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x, y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_list_str(self):
-            x = ['x'*i for i in xrange(5)]
+            x = ['x'*i for i in range(5)]
             x_rec = self.encode_decode(x)
             assert all(map(lambda x,y: x == y, x, x_rec)) and all(map(lambda x,y: type(x) == type(y), x, x_rec))
         def test_dict_float(self):

@@ -14,7 +14,9 @@ native complex data types is also supported.
 .. image:: https://img.shields.io/pypi/v/msgpack-numpy.svg
     :target: https://pypi.python.org/pypi/msgpack-numpy
     :alt: Latest Version
-.. image:: https://img.shields.io/pypi/dm/msgpack-numpy.svg
+.. Uncomment after pypi is migrated to warehouse and stats are re-enabled:
+.. https://github.com/badges/shields/issues/716
+.. .. image:: https://img.shields.io/pypi/dm/msgpack-numpy.svg
     :target: https://pypi.python.org/pypi/msgpack-numpy
     :alt: Downloads
 

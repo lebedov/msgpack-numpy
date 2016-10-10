@@ -4,7 +4,7 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2015, Lev Givon
+# Copyright (c) 2013-2016, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
@@ -31,17 +31,17 @@ def encode(obj):
     Data encoder for serializing numpy data types.
     """
     if isinstance(obj, np.ndarray):
-        return {'nd': True,
-                'type': obj.dtype.str,
-                'shape': obj.shape,
-                'data': obj.tostring()}
+        return {b'nd': True,
+                b'type': obj.dtype.str,
+                b'shape': obj.shape,
+                b'data': obj.tostring()}
     elif isinstance(obj, (np.bool_, np.number)):
-        return {'nd': False,
-                'type': obj.dtype.str,
-                'data': obj.tostring()}
+        return {b'nd': False,
+                b'type': obj.dtype.str,
+                b'data': obj.tostring()}
     elif isinstance(obj, complex):
-        return {'complex': True,
-                'data': obj.__repr__()}
+        return {b'complex': True,
+                b'data': obj.__repr__()}
     else:
         return obj
 
@@ -51,15 +51,15 @@ def decode(obj):
     """
 
     try:
-        if 'nd' in obj:
-            if obj['nd'] is True:
-                return np.fromstring(obj['data'],
-                            dtype=np.dtype(obj['type'])).reshape(obj['shape'])
+        if b'nd' in obj:
+            if obj[b'nd'] is True:
+                return np.fromstring(obj[b'data'],
+                            dtype=np.dtype(obj[b'type'])).reshape(obj[b'shape'])
             else:
-                return np.fromstring(obj['data'],
-                            dtype=np.dtype(obj['type']))[0]
+                return np.fromstring(obj[b'data'],
+                            dtype=np.dtype(obj[b'type']))[0]
         elif 'complex' in obj:
-            return complex(obj['data'])
+            return complex(obj[b'data'])
         else:
             return obj
     except KeyError:

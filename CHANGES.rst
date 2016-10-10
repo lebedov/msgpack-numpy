@@ -3,6 +3,22 @@
 Change Log
 ==========
 
+Release 0.3.7 - (under development)
+-----------------------------------
+* Add Python 3 support (#11).
+
+Release 0.3.6 - (July 8, 2015)
+------------------------------
+* Fall back to pure Python msgpack if compiled extension is unavailable (#6).
+
+Release 0.3.5 - (February 12, 2015)
+-----------------------------------
+* Add support for numpy scalar booleans (#8).
+
+Release 0.3.4 - (December 12, 2014)
+-----------------------------------
+* Add badges, update README.
+
 Release 0.3.3 - (October 21, 2014)
 ----------------------------------
 * Add missing ez_setup.py file.

@@ -3,8 +3,12 @@
 Change Log
 ==========
 
-Release 0.3.7 - (under development)
+Release 0.3.8 - (Februrary 4, 2017)
 -----------------------------------
+* Fix deserialization with Python 3.5 (#13).
+
+Release 0.3.7 - (March 12, 2016)
+--------------------------------
 * Add Python 3 support (#11).
 
 Release 0.3.6 - (July 8, 2015)

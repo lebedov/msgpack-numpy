@@ -4,7 +4,7 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2016, Lev Givon
+# Copyright (c) 2013-2017, Lev Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
@@ -30,15 +30,25 @@ def encode(obj):
     """
     Data encoder for serializing numpy data types.
     """
+
     if isinstance(obj, np.ndarray):
+        # If the dtype is structured, store the interface description;
+        # otherwise, store the corresponding array protocol type string:
+        if obj.dtype.kind == 'V':
+            kind = 'V'
+            descr = obj.dtype.descr
+        else:
+            kind = ''
+            descr = obj.dtype.str
         return {b'nd': True,
-                b'type': obj.dtype.str,
+                b'type': descr,
+                b'kind': kind,
                 b'shape': obj.shape,
-                b'data': obj.tostring()}
+                b'data': obj.tobytes()}
     elif isinstance(obj, (np.bool_, np.number)):
         return {b'nd': False,
                 b'type': obj.dtype.str,
-                b'data': obj.tostring()}
+                b'data': obj.tobytes()}
     elif isinstance(obj, complex):
         return {b'complex': True,
                 b'data': obj.__repr__()}
@@ -53,11 +63,16 @@ def decode(obj):
     try:
         if b'nd' in obj:
             if obj[b'nd'] is True:
+                if obj[b'kind'] == 'V':
+                    descr = [tuple(d) for d in obj[b'type']]
+                else:
+                    descr = obj[b'type']
                 return np.fromstring(obj[b'data'],
-                            dtype=np.dtype(obj[b'type'])).reshape(obj[b'shape'])
+                            dtype=np.dtype(descr)).reshape(obj[b'shape'])
             else:
+                descr = obj[b'type']
                 return np.fromstring(obj[b'data'],
-                            dtype=np.dtype(obj[b'type']))[0]
+                            dtype=np.dtype(descr))[0]
         elif b'complex' in obj:
             return complex(obj[b'data'])
         else:
@@ -277,6 +292,13 @@ if __name__ == '__main__':
             assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_numpy_array_str(self):
             x = np.array(['aaa', 'bbbb', 'ccccc'])
+            x_rec = self.encode_decode(x)
+            assert np.all(x == x_rec) and x.dtype == x_rec.dtype
+        def test_numpy_array_midex(self):
+            x = np.array([(1, 2, 'a')],
+                         np.dtype([('arg0', np.uint32),
+                                   ('arg1', np.uint32),
+                                   ('arg2', 'S1')]))
             x_rec = self.encode_decode(x)
             assert np.all(x == x_rec) and x.dtype == x_rec.dtype
         def test_list_mixed(self):

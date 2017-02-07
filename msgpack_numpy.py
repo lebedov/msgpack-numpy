@@ -58,13 +58,14 @@ def decode(obj):
             else:
                 return np.fromstring(obj[b'data'],
                             dtype=np.dtype(obj[b'type']))[0]
-        elif 'complex' in obj:
+        elif b'complex' in obj:
             return complex(obj[b'data'])
         else:
             return obj
     except KeyError:
         return obj
 
+            #import ipdb; ipdb.set_trace()
 # Maintain support for msgpack < 0.4.0:
 if msgpack.version < (0, 4, 0):
     class Packer(_packer.Packer):

@@ -10,6 +10,7 @@ Support for serialization of numpy data types with msgpack.
 # http://www.opensource.org/licenses/bsd-license
 
 import os
+import sys
 
 import numpy as np
 import msgpack
@@ -35,10 +36,10 @@ def encode(obj):
         # If the dtype is structured, store the interface description;
         # otherwise, store the corresponding array protocol type string:
         if obj.dtype.kind == 'V':
-            kind = 'V'
+            kind = b'V'
             descr = obj.dtype.descr
         else:
-            kind = ''
+            kind = b''
             descr = obj.dtype.str
         return {b'nd': True,
                 b'type': descr,
@@ -55,16 +56,25 @@ def encode(obj):
     else:
         return obj
 
+def tostr(x):
+    if sys.version_info >= (3, 0):
+        if isinstance(x, bytes):
+            return x.decode()
+        else:
+            return str(x)
+    else:
+        return x
+
 def decode(obj):
     """
     Decoder for deserializing numpy data types.
     """
-
+    
     try:
         if b'nd' in obj:
             if obj[b'nd'] is True:
-                if obj[b'kind'] == 'V':
-                    descr = [tuple(d) for d in obj[b'type']]
+                if obj[b'kind'] == b'V':
+                    descr = [tuple(tostr(t) for t in d) for d in obj[b'type']]
                 else:
                     descr = obj[b'type']
                 return np.fromstring(obj[b'data'],
@@ -80,7 +90,6 @@ def decode(obj):
     except KeyError:
         return obj
 
-            #import ipdb; ipdb.set_trace()
 # Maintain support for msgpack < 0.4.0:
 if msgpack.version < (0, 4, 0):
     class Packer(_packer.Packer):
@@ -294,7 +303,7 @@ if __name__ == '__main__':
             x = np.array(['aaa', 'bbbb', 'ccccc'])
             x_rec = self.encode_decode(x)
             assert np.all(x == x_rec) and x.dtype == x_rec.dtype
-        def test_numpy_array_midex(self):
+        def test_numpy_array_mixed(self):
             x = np.array([(1, 2, 'a')],
                          np.dtype([('arg0', np.uint32),
                                    ('arg1', np.uint32),

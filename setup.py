@@ -3,16 +3,10 @@
 import os
 import re
 
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.3.9'
+VERSION =            '0.4.0'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'

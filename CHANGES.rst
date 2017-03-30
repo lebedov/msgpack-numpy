@@ -3,8 +3,12 @@
 Change Log
 ==========
 
-Release 0.3.9 - (under development)
+Release 0.4.0 - (under development)
 -----------------------------------
+* Remove deprecated ez_setup.
+
+Release 0.3.9 - (February 7, 2017)
+----------------------------------
 * Complex type handling fixes.
 * Handle structured dtypes (#15).
 * Note: data serialized with earlier versions cannot be deserialized with 0.3.9 

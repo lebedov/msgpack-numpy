@@ -1,17 +1,24 @@
 #!/usr/bin/env python
 
+<<<<<<< HEAD
 import sys, os
 from glob import glob
+=======
+import os
+import re
+>>>>>>> 093516bd6824f500100134d472f887c6cb40dac4
 
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.3.9'
+VERSION =            '0.4.0'
 AUTHOR =             'Lev Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'
 DESCRIPTION =        'Numpy data serialization using msgpack'
-LONG_DESCRIPTION =   DESCRIPTION
+with open('README.rst', 'r') as f:
+    LONG_DESCRIPTION = f.read()
+LONG_DESCRIPTION = re.search('.*(^Package Description.*)', LONG_DESCRIPTION, re.MULTILINE|re.DOTALL).group(1)
 DOWNLOAD_URL =       URL
 LICENSE =            'BSD'
 CLASSIFIERS = [

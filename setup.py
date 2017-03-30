@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 
-<<<<<<< HEAD
-import sys, os
-from glob import glob
-=======
 import os
 import re
->>>>>>> 093516bd6824f500100134d472f887c6cb40dac4
 
 from setuptools import setup
 

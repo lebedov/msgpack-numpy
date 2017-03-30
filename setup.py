@@ -3,12 +3,6 @@
 import sys, os
 from glob import glob
 
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-
 from setuptools import setup
 
 NAME =               'msgpack-numpy'

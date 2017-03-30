@@ -7,7 +7,9 @@ Release 0.3.9 - (under development)
 -----------------------------------
 * Complex type handling fixes.
 * Handle structured dtypes (#15).
-
+* Note: data serialized with earlier versions cannot be deserialized with 0.3.9 
+  (#17).
+  
 Release 0.3.8 - (Februrary 4, 2017)
 -----------------------------------
 * Fix deserialization with Python 3.5 (#13).

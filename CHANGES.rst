@@ -3,9 +3,10 @@
 Change Log
 ==========
 
-Release 0.4.0 - (under development)
------------------------------------
+Release 0.4.0 - (May 24, 2017)
+------------------------------
 * Remove deprecated ez_setup.
+* Add numpy >= 1.9.0 dependency (#18).
 
 Release 0.3.9 - (February 7, 2017)
 ----------------------------------

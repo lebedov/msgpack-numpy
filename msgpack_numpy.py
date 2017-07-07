@@ -73,7 +73,10 @@ def decode(obj):
     try:
         if b'nd' in obj:
             if obj[b'nd'] is True:
-                if obj[b'kind'] == b'V':
+                
+                # Check if b'kind' is in obj to enable decoding of data
+                # serialized with older versions (#20):
+                if b'kind' in obj and obj[b'kind'] == b'V':
                     descr = [tuple(tostr(t) for t in d) for d in obj[b'type']]
                 else:
                     descr = obj[b'type']

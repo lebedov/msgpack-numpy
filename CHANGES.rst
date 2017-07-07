@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.1 - (July 6, 2017)
+------------------------------
+* Improve ability to decode data serialized with versions before 0.3.9 (#20).
+  
 Release 0.4.0 - (May 24, 2017)
 ------------------------------
 * Remove deprecated ez_setup.

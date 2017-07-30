@@ -6,6 +6,7 @@ Change Log
 Release 0.4.2 - (under development)
 -----------------------------------
 * Make decoding/encoding defaults identical to those of msgpack-python 0.4.* (#19).
+* Fix handling of nested arrays in Py3 (#21).
 * Improve decoding of complex values in Py3.
 * Use numpy.testing functions to make unit test errors more informative.
   

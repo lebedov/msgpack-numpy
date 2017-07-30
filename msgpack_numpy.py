@@ -77,7 +77,8 @@ def decode(obj):
                 # Check if b'kind' is in obj to enable decoding of data
                 # serialized with older versions (#20):
                 if b'kind' in obj and obj[b'kind'] == b'V':
-                    descr = [tuple(tostr(t) for t in d) for d in obj[b'type']]
+                    descr = [tuple(tostr(t) if type(t) is bytes else t for t in d) \
+                             for d in obj[b'type']]
                 else:
                     descr = obj[b'type']
                 return np.fromstring(obj[b'data'],
@@ -383,10 +384,11 @@ if __name__ == '__main__':
             assert_equal(x.dtype, x_rec.dtype)
             
         def test_numpy_array_mixed(self):
-            x = np.array([(1, 2, b'a')],
+            x = np.array([(1, 2, b'a', [1.0, 2.0])],
                          np.dtype([('arg0', np.uint32),
                                    ('arg1', np.uint32),
-                                   ('arg2', 'S1')]))
+                                   ('arg2', 'S1'),
+                                   ('arg3', np.float32, (2,))]))
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)

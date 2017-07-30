@@ -3,6 +3,12 @@
 Change Log
 ==========
 
+Release 0.4.2 - (under development)
+-----------------------------------
+* Make decoding/encoding defaults identical to those of msgpack-python 0.4.* (#19).
+* Improve decoding of complex values in Py3.
+* Use numpy.testing functions to make unit test errors more informative.
+  
 Release 0.4.1 - (July 6, 2017)
 ------------------------------
 * Improve ability to decode data serialized with versions before 0.3.9 (#20).

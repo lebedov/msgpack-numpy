@@ -11,6 +11,7 @@ Support for serialization of numpy data types with msgpack.
 
 import os
 import sys
+import functools
 
 import numpy as np
 import msgpack
@@ -27,7 +28,7 @@ else:
         import msgpack.fallback as _packer
         import msgpack.fallback as _unpacker
 
-def encode(obj):
+def encode(obj, chain=None):
     """
     Data encoder for serializing numpy data types.
     """
@@ -54,7 +55,7 @@ def encode(obj):
         return {b'complex': True,
                 b'data': obj.__repr__()}
     else:
-        return obj
+        return obj if chain is None else chain(obj)
 
 def tostr(x):
     if sys.version_info >= (3, 0):
@@ -65,7 +66,7 @@ def tostr(x):
     else:
         return x
 
-def decode(obj):
+def decode(obj, chain=None):
     """
     Decoder for deserializing numpy data types.
     """
@@ -90,18 +91,19 @@ def decode(obj):
         elif b'complex' in obj:
             return complex(tostr(obj[b'data']))
         else:
-            return obj
+            return obj if chain is None else chain(obj)
     except KeyError:
-        return obj
+        return obj if chain is None else chain(obj)
 
 # Maintain support for msgpack < 0.4.0:
 if msgpack.version < (0, 4, 0):
     class Packer(_packer.Packer):
-        def __init__(self, default=encode,
+        def __init__(self, default=None,
                      encoding='utf-8',
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1):
+            default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
@@ -109,9 +111,10 @@ if msgpack.version < (0, 4, 0):
                                          autoreset=autoreset)
     class Unpacker(_unpacker.Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
-                     object_hook=decode,
+                     object_hook=None,
                      object_pairs_hook=None, list_hook=None, encoding='utf-8',
                      unicode_errors='strict', max_buffer_size=0):
+            object_hook = functools.partial(decode, chain=object_hook)
             super(Unpacker, self).__init__(file_like=file_like,
                                            read_size=read_size,
                                            use_list=use_list,
@@ -124,12 +127,13 @@ if msgpack.version < (0, 4, 0):
 
 else:
     class Packer(_packer.Packer):
-        def __init__(self, default=encode,
+        def __init__(self, default=None,
                      encoding='utf-8',
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
                      use_bin_type=0):
+            default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
@@ -139,10 +143,11 @@ else:
 
     class Unpacker(_unpacker.Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
-                     object_hook=decode,
+                     object_hook=None,
                      object_pairs_hook=None, list_hook=None, encoding=None,
                      unicode_errors='strict', max_buffer_size=0,
                      ext_hook=msgpack.ExtType):
+            object_hook = functools.partial(decode, chain=object_hook)
             super(Unpacker, self).__init__(file_like=file_like,
                                            read_size=read_size,
                                            use_list=use_list,
@@ -154,37 +159,37 @@ else:
                                            max_buffer_size=max_buffer_size,
                                            ext_hook=ext_hook)
 
-def pack(o, stream, default=encode, **kwargs):
+def pack(o, stream, **kwargs):
     """
     Pack an object and write it to a stream.
     """
 
-    kwargs['default'] = default
     packer = Packer(**kwargs)
     stream.write(packer.pack(o))
 
-def packb(o, default=encode, **kwargs):
+def packb(o, **kwargs):
     """
     Pack an object and return the packed bytes.
     """
 
-    kwargs['default'] = default
     return Packer(**kwargs).pack(o)
 
-def unpack(stream, object_hook=decode, **kwargs):
+def unpack(stream, **kwargs):
     """
     Unpack a packed object from a stream.
     """
 
-    kwargs['object_hook'] = object_hook
+    object_hook = kwargs.get('object_hook')
+    kwargs['object_hook'] = functools.partial(decode, chain=object_hook)
     return _unpacker.unpack(stream, **kwargs)
 
-def unpackb(packed, object_hook=decode, **kwargs):
+def unpackb(packed, **kwargs):
     """
     Unpack a packed object.
     """
 
-    kwargs['object_hook'] = object_hook
+    object_hook = kwargs.get('object_hook')
+    kwargs['object_hook'] = functools.partial(decode, chain=object_hook)
     return _unpacker.unpackb(packed, **kwargs)
 
 load = unpack
@@ -216,7 +221,16 @@ if __name__ == '__main__':
 
     from unittest import main, TestCase, TestSuite
     from numpy.testing import assert_equal, assert_array_equal
-    
+
+    class ThirdParty(object):
+
+        def __init__(self, foo='bar'):
+            self.foo = foo
+
+        def __eq__(self, other):
+            return isinstance(other, ThirdParty) and self.foo == other.foo
+
+
     class test_numpy_msgpack(TestCase):
         def setUp(self):
              patch()
@@ -224,7 +238,21 @@ if __name__ == '__main__':
         def encode_decode(self, x, use_bin_type=False, encoding=None):
             x_enc = msgpack.packb(x, use_bin_type=use_bin_type)
             return msgpack.unpackb(x_enc, encoding=encoding)
-        
+
+        def encode_thirdparty(self, obj):
+            return dict(__thirdparty__=True, foo=obj.foo)
+
+        def decode_thirdparty(self, obj):
+            if b'__thirdparty__' in obj:
+                return ThirdParty(foo=obj['foo'])
+            return obj
+
+        def encode_decode_thirdparty(self, x, use_bin_type=False, encoding=None):
+            x_enc = msgpack.packb(x, default=self.encode_thirdparty,
+                                  use_bin_type=use_bin_type)
+            return msgpack.unpackb(x_enc, object_hook=self.decode_thirdparty,
+                                   encoding=encoding)
+
         def test_bin(self):
             # Since bytes == str in Python 2.7, the following
             # should pass on both 2.7 and 3.*
@@ -399,6 +427,11 @@ if __name__ == '__main__':
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x],
                                [type(e) for e in x_rec])
+
+        def test_chain(self):
+            x = ThirdParty(foo='test marshal/unmarshal')
+            x_rec = self.encode_decode_thirdparty(x)
+            self.assertEqual(x, x_rec)
 
     main()
 

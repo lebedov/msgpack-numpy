@@ -10,3 +10,4 @@ Special thanks are due to the following parties for their contributions:
 - John Tyree - support for numpy scalar booleans.
 - Mehdi Sadeghi - bug reports.
 - tvkpz - bug reports.
+- Jose Coutinho - make msgpack-numpy params consistent with msgpack-python.

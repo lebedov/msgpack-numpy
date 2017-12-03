@@ -3,8 +3,8 @@
 Change Log
 ==========
 
-Release 0.4.2 - (under development)
------------------------------------
+Release 0.4.2 - (December 2, 2017)
+----------------------------------
 * Make decoding/encoding defaults identical to those of msgpack-python 0.4.* (#19).
 * Fix handling of nested arrays in Py3 (#21).
 * Improve decoding of complex values in Py3.

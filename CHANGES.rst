@@ -9,6 +9,7 @@ Release 0.4.2 - (under development)
 * Fix handling of nested arrays in Py3 (#21).
 * Improve decoding of complex values in Py3.
 * Use numpy.testing functions to make unit test errors more informative.
+* Make object_hook params consistent with those of msgack-python (#23).
   
 Release 0.4.1 - (July 6, 2017)
 ------------------------------

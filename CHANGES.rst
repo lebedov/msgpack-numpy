@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.3 - (under development)
+-----------------------------------
+* Change dependency name due to package name change (#25).
+
 Release 0.4.2 - (December 2, 2017)
 ----------------------------------
 * Make decoding/encoding defaults identical to those of msgpack-python 0.4.* (#19).

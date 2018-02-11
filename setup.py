@@ -42,5 +42,5 @@ if __name__ == "__main__":
         url = URL,
         py_modules = ['msgpack_numpy'],
         install_requires = ['numpy>=1.9.0',
-                            'msgpack-python>=0.3.0']
+                            'msgpack>=0.3.0']
         )

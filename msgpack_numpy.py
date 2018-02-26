@@ -4,7 +4,7 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2017, Lev Givon
+# Copyright (c) 2013-2018, Lev E. Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
@@ -16,17 +16,8 @@ import functools
 import numpy as np
 import msgpack
 
-# Fall back to pure Python
-if os.environ.get('MSGPACK_PUREPYTHON'):
-    import msgpack.fallback as _packer
-    import msgpack.fallback as _unpacker
-else:
-    try:
-        import msgpack._packer as _packer
-        import msgpack._unpacker as _unpacker
-    except:
-        import msgpack.fallback as _packer
-        import msgpack.fallback as _unpacker
+from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
+    unpack as _unpack, unpackb as _unpackb
 
 def encode(obj, chain=None):
     """
@@ -97,7 +88,7 @@ def decode(obj, chain=None):
 
 # Maintain support for msgpack < 0.4.0:
 if msgpack.version < (0, 4, 0):
-    class Packer(_packer.Packer):
+    class Packer(_Packer):
         def __init__(self, default=None,
                      encoding='utf-8',
                      unicode_errors='strict',
@@ -109,7 +100,7 @@ if msgpack.version < (0, 4, 0):
                                          unicode_errors=unicode_errors,
                                          use_single_float=use_single_float,
                                          autoreset=autoreset)
-    class Unpacker(_unpacker.Unpacker):
+    class Unpacker(_Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
                      object_hook=None,
                      object_pairs_hook=None, list_hook=None, encoding='utf-8',
@@ -126,7 +117,7 @@ if msgpack.version < (0, 4, 0):
                                            max_buffer_size=max_buffer_size)
 
 else:
-    class Packer(_packer.Packer):
+    class Packer(_Packer):
         def __init__(self, default=None,
                      encoding='utf-8',
                      unicode_errors='strict',
@@ -141,7 +132,7 @@ else:
                                          autoreset=autoreset,
                                          use_bin_type=use_bin_type)
 
-    class Unpacker(_unpacker.Unpacker):
+    class Unpacker(_Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
                      object_hook=None,
                      object_pairs_hook=None, list_hook=None, encoding=None,
@@ -181,7 +172,7 @@ def unpack(stream, **kwargs):
 
     object_hook = kwargs.get('object_hook')
     kwargs['object_hook'] = functools.partial(decode, chain=object_hook)
-    return _unpacker.unpack(stream, **kwargs)
+    return _unpack(stream, **kwargs)
 
 def unpackb(packed, **kwargs):
     """
@@ -190,7 +181,7 @@ def unpackb(packed, **kwargs):
 
     object_hook = kwargs.get('object_hook')
     kwargs['object_hook'] = functools.partial(decode, chain=object_hook)
-    return _unpacker.unpackb(packed, **kwargs)
+    return _unpackb(packed, **kwargs)
 
 load = unpack
 loads = unpackb
@@ -224,7 +215,7 @@ if __name__ == '__main__':
 
     class ThirdParty(object):
 
-        def __init__(self, foo='bar'):
+        def __init__(self, foo=b'bar'):
             self.foo = foo
 
         def __eq__(self, other):
@@ -244,7 +235,7 @@ if __name__ == '__main__':
 
         def decode_thirdparty(self, obj):
             if b'__thirdparty__' in obj:
-                return ThirdParty(foo=obj['foo'])
+                return ThirdParty(foo=obj[b'foo'])
             return obj
 
         def encode_decode_thirdparty(self, x, use_bin_type=False, encoding=None):
@@ -429,7 +420,7 @@ if __name__ == '__main__':
                                [type(e) for e in x_rec])
 
         def test_chain(self):
-            x = ThirdParty(foo='test marshal/unmarshal')
+            x = ThirdParty(foo=b'test marshal/unmarshal')
             x_rec = self.encode_decode_thirdparty(x)
             self.assertEqual(x, x_rec)
 

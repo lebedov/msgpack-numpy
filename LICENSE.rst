@@ -3,7 +3,7 @@
 License
 =======
 
-Copyright (c) 2013-2017, Lev E. Givon.
+Copyright (c) 2013-2018, Lev E. Givon.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

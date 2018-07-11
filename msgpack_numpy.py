@@ -61,11 +61,11 @@ def decode(obj, chain=None):
     """
     Decoder for deserializing numpy data types.
     """
-    
+
     try:
         if b'nd' in obj:
             if obj[b'nd'] is True:
-                
+
                 # Check if b'kind' is in obj to enable decoding of data
                 # serialized with older versions (#20):
                 if b'kind' in obj and obj[b'kind'] == b'V':
@@ -73,11 +73,11 @@ def decode(obj, chain=None):
                              for d in obj[b'type']]
                 else:
                     descr = obj[b'type']
-                return np.fromstring(obj[b'data'],
+                return np.frombuffer(obj[b'data'],
                             dtype=np.dtype(descr)).reshape(obj[b'shape'])
             else:
                 descr = obj[b'type']
-                return np.fromstring(obj[b'data'],
+                return np.frombuffer(obj[b'data'],
                             dtype=np.dtype(descr))[0]
         elif b'complex' in obj:
             return complex(tostr(obj[b'data']))

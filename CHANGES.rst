@@ -3,7 +3,11 @@
 Change Log
 ==========
 
-Release 0.4.3 - (under development)
+Release 0.4.3.1 - (July 11, 2018)
+---------------------------------
+* Switch to numpy.frombuffer to avoid deprecation warning (#27).
+
+Release 0.4.3 - (February 25, 2018)
 -----------------------------------
 * Change dependency name due to package name change (#25).
 

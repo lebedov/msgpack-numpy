@@ -9,7 +9,7 @@ package:
 	$(PYTHON) setup.py sdist --formats=gztar bdist_wheel
 
 upload: | package
-	twine upload dist
+	twine upload dist/*
 	
 build:
 	$(PYTHON) setup.py build

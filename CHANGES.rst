@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.3.2 - (September 17, 2018)
+--------------------------------------
+* Update classifiers to list Py3 support (#29).
+  
 Release 0.4.3.1 - (July 11, 2018)
 ---------------------------------
 * Switch to numpy.frombuffer to avoid deprecation warning (#27).

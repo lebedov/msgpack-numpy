@@ -9,7 +9,6 @@ Support for serialization of numpy data types with msgpack.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
 
-import os
 import sys
 import functools
 
@@ -19,7 +18,7 @@ import msgpack
 from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
     unpack as _unpack, unpackb as _unpackb
 
-def encode(obj, chain=None):
+def encode(obj, chain=None, copyless=False):
     """
     Data encoder for serializing numpy data types.
     """
@@ -33,15 +32,27 @@ def encode(obj, chain=None):
         else:
             kind = b''
             descr = obj.dtype.str
-        return {b'nd': True,
-                b'type': descr,
-                b'kind': kind,
-                b'shape': obj.shape,
-                b'data': obj.tobytes()}
+        if copyless:
+            return {b'nd': True,
+                    b'type': descr,
+                    b'kind': kind,
+                    b'shape': obj.shape,
+                    b'data': obj.data}
+        else:
+            return {b'nd': True,
+                    b'type': descr,
+                    b'kind': kind,
+                    b'shape': obj.shape,
+                    b'data': obj.tobytes()}
     elif isinstance(obj, (np.bool_, np.number)):
-        return {b'nd': False,
-                b'type': obj.dtype.str,
-                b'data': obj.tobytes()}
+        if copyless:
+            return {b'nd': False,
+                    b'type': obj.dtype.str,
+                    b'data': obj.tobytes()}
+        else:
+            return {b'nd': False,
+                    b'type': obj.dtype.str,
+                    b'data': obj.tobytes()}
     elif isinstance(obj, complex):
         return {b'complex': True,
                 b'data': obj.__repr__()}
@@ -93,8 +104,9 @@ if msgpack.version < (0, 4, 0):
                      encoding='utf-8',
                      unicode_errors='strict',
                      use_single_float=False,
-                     autoreset=1):
-            default = functools.partial(encode, chain=default)
+                     autoreset=1,
+                     copyless=False):
+            default = functools.partial(encode, chain=default, copyless=copyless)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
@@ -123,8 +135,9 @@ else:
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
-                     use_bin_type=0):
-            default = functools.partial(encode, chain=default)
+                     use_bin_type=0,
+                     copyless=False):
+            default = functools.partial(encode, chain=default, copyless=copyless)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
@@ -225,7 +238,7 @@ if __name__ == '__main__':
     class test_numpy_msgpack(TestCase):
         def setUp(self):
              patch()
-             
+
         def encode_decode(self, x, use_bin_type=False, encoding=None):
             x_enc = msgpack.packb(x, use_bin_type=use_bin_type)
             return msgpack.unpackb(x_enc, encoding=encoding)
@@ -305,27 +318,27 @@ if __name__ == '__main__':
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x],
                                [type(e) for e in x_rec])
-            
+
         def test_list_float(self):
             x = [np.random.rand() for i in range(5)]
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x],
                                [type(e) for e in x_rec])
-            
+
         def test_list_float_complex(self):
             x = [(np.random.rand()+1j*np.random.rand()) for i in range(5)]
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x],
                                [type(e) for e in x_rec])
-            
+
         def test_list_str(self):
             x = [b'x'*i for i in range(5)]
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x_rec], [bytes]*5)
-            
+
         def test_dict_float(self):
             x = {b'foo': 1.0, b'bar': 2.0}
             x_rec = self.encode_decode(x)
@@ -335,7 +348,7 @@ if __name__ == '__main__':
             assert_array_equal(sorted(x.keys()), sorted(x_rec.keys()))
             assert_array_equal([type(e) for e in sorted(x.keys())],
                                [type(e) for e in sorted(x_rec.keys())])
-            
+
         def test_dict_complex(self):
             x = {b'foo': 1.0+1.0j, b'bar': 2.0+2.0j}
             x_rec = self.encode_decode(x)
@@ -356,7 +369,7 @@ if __name__ == '__main__':
             assert_array_equal(sorted(x.keys()), sorted(x_rec.keys()))
             assert_array_equal([type(e) for e in sorted(x.keys())],
                                [type(e) for e in sorted(x_rec.keys())])
-            
+
         def test_dict_numpy_float(self):
             x = {b'foo': np.float32(1.0), b'bar': np.float32(2.0)}
             x_rec = self.encode_decode(x)
@@ -377,31 +390,31 @@ if __name__ == '__main__':
             assert_array_equal(sorted(x.keys()), sorted(x_rec.keys()))
             assert_array_equal([type(e) for e in sorted(x.keys())],
                                [type(e) for e in sorted(x_rec.keys())])
-            
+
         def test_numpy_array_float(self):
             x = np.random.rand(5).astype(np.float32)
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)
-            
+
         def test_numpy_array_complex(self):
             x = (np.random.rand(5)+1j*np.random.rand(5)).astype(np.complex128)
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)
-            
+
         def test_numpy_array_float_2d(self):
             x = np.random.rand(5,5).astype(np.float32)
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)
-            
+
         def test_numpy_array_str(self):
             x = np.array([b'aaa', b'bbbb', b'ccccc'])
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)
-            
+
         def test_numpy_array_mixed(self):
             x = np.array([(1, 2, b'a', [1.0, 2.0])],
                          np.dtype([('arg0', np.uint32),
@@ -411,7 +424,7 @@ if __name__ == '__main__':
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)
-            
+
         def test_list_mixed(self):
             x = [1.0, np.float32(3.5), np.complex128(4.25), b'foo']
             x_rec = self.encode_decode(x)

@@ -18,7 +18,7 @@ import msgpack
 from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
     unpack as _unpack, unpackb as _unpackb
 
-def encode(obj, chain=None, copyless=False):
+def encode(obj, chain=None):
     """
     Data encoder for serializing numpy data types.
     """
@@ -32,27 +32,15 @@ def encode(obj, chain=None, copyless=False):
         else:
             kind = b''
             descr = obj.dtype.str
-        if copyless:
-            return {b'nd': True,
-                    b'type': descr,
-                    b'kind': kind,
-                    b'shape': obj.shape,
-                    b'data': obj.data}
-        else:
-            return {b'nd': True,
-                    b'type': descr,
-                    b'kind': kind,
-                    b'shape': obj.shape,
-                    b'data': obj.tobytes()}
+        return {b'nd': True,
+                b'type': descr,
+                b'kind': kind,
+                b'shape': obj.shape,
+                b'data': obj.data}
     elif isinstance(obj, (np.bool_, np.number)):
-        if copyless:
-            return {b'nd': False,
-                    b'type': obj.dtype.str,
-                    b'data': obj.tobytes()}
-        else:
-            return {b'nd': False,
-                    b'type': obj.dtype.str,
-                    b'data': obj.tobytes()}
+        return {b'nd': False,
+                b'type': obj.dtype.str,
+                b'data': obj.data}
     elif isinstance(obj, complex):
         return {b'complex': True,
                 b'data': obj.__repr__()}
@@ -104,9 +92,8 @@ if msgpack.version < (0, 4, 0):
                      encoding='utf-8',
                      unicode_errors='strict',
                      use_single_float=False,
-                     autoreset=1,
-                     copyless=False):
-            default = functools.partial(encode, chain=default, copyless=copyless)
+                     autoreset=1):
+            default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,
@@ -135,9 +122,8 @@ else:
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
-                     use_bin_type=0,
-                     copyless=False):
-            default = functools.partial(encode, chain=default, copyless=copyless)
+                     use_bin_type=0):
+            default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
                                          encoding=encoding,
                                          unicode_errors=unicode_errors,

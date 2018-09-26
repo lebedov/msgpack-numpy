@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.4 (September 25, 2018)
+----------------------------------
+* Access ndarray memory view directly to slightly speed up encoding (#30).
+
 Release 0.4.3.2 - (September 17, 2018)
 --------------------------------------
 * Update classifiers to list Py3 support (#29).

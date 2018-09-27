@@ -18,42 +18,72 @@ import msgpack
 from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
     unpack as _unpack, unpackb as _unpackb
 
-def encode(obj, chain=None):
-    """
-    Data encoder for serializing numpy data types.
-    """
+if sys.version_info >= (3, 0):
+    def encode(obj, chain=None):
+        """
+        Data encoder for serializing numpy data types.
+        """
 
-    if isinstance(obj, np.ndarray):
-        # If the dtype is structured, store the interface description;
-        # otherwise, store the corresponding array protocol type string:
-        if obj.dtype.kind == 'V':
-            kind = b'V'
-            descr = obj.dtype.descr
+        if isinstance(obj, np.ndarray):
+            # If the dtype is structured, store the interface description;
+            # otherwise, store the corresponding array protocol type string:
+            if obj.dtype.kind == 'V':
+                kind = b'V'
+                descr = obj.dtype.descr
+            else:
+                kind = b''
+                descr = obj.dtype.str
+            return {b'nd': True,
+                    b'type': descr,
+                    b'kind': kind,
+                    b'shape': obj.shape,
+                    b'data': obj.data}
+        elif isinstance(obj, (np.bool_, np.number)):
+            return {b'nd': False,
+                    b'type': obj.dtype.str,
+                    b'data': obj.data}
+        elif isinstance(obj, complex):
+            return {b'complex': True,
+                    b'data': obj.__repr__()}
         else:
-            kind = b''
-            descr = obj.dtype.str
-        return {b'nd': True,
-                b'type': descr,
-                b'kind': kind,
-                b'shape': obj.shape,
-                b'data': obj.data}
-    elif isinstance(obj, (np.bool_, np.number)):
-        return {b'nd': False,
-                b'type': obj.dtype.str,
-                b'data': obj.data}
-    elif isinstance(obj, complex):
-        return {b'complex': True,
-                b'data': obj.__repr__()}
-    else:
-        return obj if chain is None else chain(obj)
+            return obj if chain is None else chain(obj)
 
-def tostr(x):
-    if sys.version_info >= (3, 0):
+    def tostr(x):
         if isinstance(x, bytes):
             return x.decode()
         else:
             return str(x)
-    else:
+else:
+    def encode(obj, chain=None):
+        """
+        Data encoder for serializing numpy data types.
+        """
+
+        if isinstance(obj, np.ndarray):
+            # If the dtype is structured, store the interface description;
+            # otherwise, store the corresponding array protocol type string:
+            if obj.dtype.kind == 'V':
+                kind = b'V'
+                descr = obj.dtype.descr
+            else:
+                kind = b''
+                descr = obj.dtype.str
+            return {b'nd': True,
+                    b'type': descr,
+                    b'kind': kind,
+                    b'shape': obj.shape,
+                    b'data': memoryview(obj.data)}
+        elif isinstance(obj, (np.bool_, np.number)):
+            return {b'nd': False,
+                    b'type': obj.dtype.str,
+                    b'data': memoryview(obj.data)}
+        elif isinstance(obj, complex):
+            return {b'complex': True,
+                    b'data': obj.__repr__()}
+        else:
+            return obj if chain is None else chain(obj)
+
+    def tostr(x):
         return x
 
 def decode(obj, chain=None):
@@ -118,33 +148,34 @@ if msgpack.version < (0, 4, 0):
 else:
     class Packer(_Packer):
         def __init__(self, default=None,
-                     encoding='utf-8',
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
-                     use_bin_type=0):
+                     use_bin_type=0,
+                     strict_types=False):
             default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
-                                         encoding=encoding,
                                          unicode_errors=unicode_errors,
                                          use_single_float=use_single_float,
                                          autoreset=autoreset,
-                                         use_bin_type=use_bin_type)
+                                         use_bin_type=use_bin_type,
+                                         strict_types=strict_types)
 
     class Unpacker(_Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
+                     raw=True,
                      object_hook=None,
-                     object_pairs_hook=None, list_hook=None, encoding=None,
+                     object_pairs_hook=None, list_hook=None,
                      unicode_errors='strict', max_buffer_size=0,
                      ext_hook=msgpack.ExtType):
             object_hook = functools.partial(decode, chain=object_hook)
             super(Unpacker, self).__init__(file_like=file_like,
                                            read_size=read_size,
                                            use_list=use_list,
+                                           raw=raw,
                                            object_hook=object_hook,
                                            object_pairs_hook=object_pairs_hook,
                                            list_hook=list_hook,
-                                           encoding=encoding,
                                            unicode_errors=unicode_errors,
                                            max_buffer_size=max_buffer_size,
                                            ext_hook=ext_hook)
@@ -225,9 +256,9 @@ if __name__ == '__main__':
         def setUp(self):
              patch()
 
-        def encode_decode(self, x, use_bin_type=False, encoding=None):
+        def encode_decode(self, x, use_bin_type=False, raw=True):
             x_enc = msgpack.packb(x, use_bin_type=use_bin_type)
-            return msgpack.unpackb(x_enc, encoding=encoding)
+            return msgpack.unpackb(x_enc, raw=raw)
 
         def encode_thirdparty(self, obj):
             return dict(__thirdparty__=True, foo=obj.foo)
@@ -237,25 +268,24 @@ if __name__ == '__main__':
                 return ThirdParty(foo=obj[b'foo'])
             return obj
 
-        def encode_decode_thirdparty(self, x, use_bin_type=False, encoding=None):
+        def encode_decode_thirdparty(self, x, use_bin_type=False, raw=True):
             x_enc = msgpack.packb(x, default=self.encode_thirdparty,
                                   use_bin_type=use_bin_type)
-            return msgpack.unpackb(x_enc, object_hook=self.decode_thirdparty,
-                                   encoding=encoding)
+            return msgpack.unpackb(x_enc, raw=raw, object_hook=self.decode_thirdparty)
 
         def test_bin(self):
             # Since bytes == str in Python 2.7, the following
             # should pass on both 2.7 and 3.*
             assert_equal(type(self.encode_decode(b'foo')), bytes)
-                
+
         def test_str(self):
             assert_equal(type(self.encode_decode('foo')), bytes)
             if sys.version_info.major == 2:
                 assert_equal(type(self.encode_decode(u'foo')), str)
 
                 # Test non-default string encoding/decoding:
-                assert_equal(type(self.encode_decode(u'foo', True, 'utf=8')), unicode)
-                
+                assert_equal(type(self.encode_decode(u'foo', True, False)), unicode)
+
         def test_numpy_scalar_bool(self):
             x = np.bool_(True)
             x_rec = self.encode_decode(x)
@@ -265,38 +295,38 @@ if __name__ == '__main__':
             x_rec = self.encode_decode(x)
             assert_equal(x, x_rec)
             assert_equal(type(x), type(x_rec))
-            
+
         def test_numpy_scalar_float(self):
             x = np.float32(np.random.rand())
             x_rec = self.encode_decode(x)
             assert_equal(x, x_rec)
             assert_equal(type(x), type(x_rec))
-            
+
         def test_numpy_scalar_complex(self):
             x = np.complex64(np.random.rand()+1j*np.random.rand())
             x_rec = self.encode_decode(x)
             assert_equal(x, x_rec)
             assert_equal(type(x), type(x_rec))
-            
+
         def test_scalar_float(self):
             x = np.random.rand()
             x_rec = self.encode_decode(x)
             assert_equal(x, x_rec)
             assert_equal(type(x), type(x_rec))
-            
+
         def test_scalar_complex(self):
             x = np.random.rand()+1j*np.random.rand()
             x_rec = self.encode_decode(x)
             assert_equal(x, x_rec)
             assert_equal(type(x), type(x_rec))
-            
+
         def test_list_numpy_float(self):
             x = [np.float32(np.random.rand()) for i in range(5)]
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_array_equal([type(e) for e in x],
                                [type(e) for e in x_rec])
-            
+
         def test_list_numpy_float_complex(self):
             x = [np.float32(np.random.rand()) for i in range(5)] + \
               [np.complex128(np.random.rand()+1j*np.random.rand()) for i in range(5)]

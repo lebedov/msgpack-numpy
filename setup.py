@@ -6,7 +6,7 @@ import re
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.4.4'
+VERSION =            '0.4.4.1'
 AUTHOR =             'Lev E. Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'
@@ -48,5 +48,5 @@ if __name__ == "__main__":
         url = URL,
         py_modules = ['msgpack_numpy'],
         install_requires = ['numpy>=1.9.0',
-                            'msgpack>=0.3.0']
+                            'msgpack>=0.5.2']
         )

@@ -3,6 +3,12 @@
 Change Log
 ==========
 
+Release 0.4.4.1 (September 26, 2018)
+------------------------------------
+* Check Py version before defining encode and tostr funcs.
+* Eliminate deprecation warnings, raise minimum required msgpack version (#31).
+* Fix Python 2 support (#32).
+
 Release 0.4.4 (September 25, 2018)
 ----------------------------------
 * Access ndarray memory view directly to slightly speed up encoding (#30).

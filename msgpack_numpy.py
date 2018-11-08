@@ -37,7 +37,7 @@ if sys.version_info >= (3, 0):
                     b'type': descr,
                     b'kind': kind,
                     b'shape': obj.shape,
-                    b'data': obj.data}
+                    b'data': obj.data if obj.flags['C_CONTIGUOUS'] else obj.tobytes()}
         elif isinstance(obj, (np.bool_, np.number)):
             return {b'nd': False,
                     b'type': obj.dtype.str,
@@ -72,7 +72,7 @@ else:
                     b'type': descr,
                     b'kind': kind,
                     b'shape': obj.shape,
-                    b'data': memoryview(obj.data)}
+                    b'data': memoryview(obj.data) if obj.flags['C_CONTIGUOUS'] else obj.tobytes()}
         elif isinstance(obj, (np.bool_, np.number)):
             return {b'nd': False,
                     b'type': obj.dtype.str,
@@ -240,7 +240,7 @@ if __name__ == '__main__':
     except NameError:
         pass # Python 3
 
-    from unittest import main, TestCase, TestSuite
+    from unittest import main, TestCase
     from numpy.testing import assert_equal, assert_array_equal
 
     class ThirdParty(object):
@@ -250,7 +250,6 @@ if __name__ == '__main__':
 
         def __eq__(self, other):
             return isinstance(other, ThirdParty) and self.foo == other.foo
-
 
     class test_numpy_msgpack(TestCase):
         def setUp(self):
@@ -437,6 +436,12 @@ if __name__ == '__main__':
                                    ('arg1', np.uint32),
                                    ('arg2', 'S1'),
                                    ('arg3', np.float32, (2,))]))
+            x_rec = self.encode_decode(x)
+            assert_array_equal(x, x_rec)
+            assert_equal(x.dtype, x_rec.dtype)
+
+        def test_numpy_array_noncontiguous(self):
+            x = np.ones((10, 10), np.uint32)[0:5, 0:5]
             x_rec = self.encode_decode(x)
             assert_array_equal(x, x_rec)
             assert_equal(x.dtype, x_rec.dtype)

@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.4.2 (November 8, 2018)
+----------------------------------
+* Fix regression handling noncontiguous arrays (#34).
+
 Release 0.4.4.1 (September 26, 2018)
 ------------------------------------
 * Check Py version before defining encode and tostr funcs.

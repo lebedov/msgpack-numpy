@@ -9,3 +9,6 @@ python:
     - 3.5
     - 3.6
     - 3.7
+
+script:
+    - python msgpack_numpy.py

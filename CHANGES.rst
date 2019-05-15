@@ -3,9 +3,10 @@
 Change Log
 ==========
 
-Release 0.4.5 (In Development)
+Release 0.4.4.3 (In Development)
 ------------------------------
 * Configure contiguous integration with Travis.
+* Add workaround for issue handling n-dim arrays on MacOS (#35).
 
 Release 0.4.4.2 (November 8, 2018)
 ----------------------------------

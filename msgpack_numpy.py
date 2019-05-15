@@ -18,34 +18,12 @@ from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
 import numpy as np
 
 if sys.version_info >= (3, 0):
-    def encode(obj, chain=None):
-        """
-        Data encoder for serializing numpy data types.
-        """
+    if sys.platform == 'darwin':
+        ndarray_to_bytes = lambda obj: obj.tobytes()
+    else:
+        ndarray_to_bytes = lambda obj: obj.data if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
 
-        if isinstance(obj, np.ndarray):
-            # If the dtype is structured, store the interface description;
-            # otherwise, store the corresponding array protocol type string:
-            if obj.dtype.kind == 'V':
-                kind = b'V'
-                descr = obj.dtype.descr
-            else:
-                kind = b''
-                descr = obj.dtype.str
-            return {b'nd': True,
-                    b'type': descr,
-                    b'kind': kind,
-                    b'shape': obj.shape,
-                    b'data': obj.data if obj.flags['C_CONTIGUOUS'] else obj.tobytes()}
-        elif isinstance(obj, (np.bool_, np.number)):
-            return {b'nd': False,
-                    b'type': obj.dtype.str,
-                    b'data': obj.data}
-        elif isinstance(obj, complex):
-            return {b'complex': True,
-                    b'data': obj.__repr__()}
-        else:
-            return obj if chain is None else chain(obj)
+    num_to_bytes = lambda obj: obj.data
 
     def tostr(x):
         if isinstance(x, bytes):
@@ -53,37 +31,44 @@ if sys.version_info >= (3, 0):
         else:
             return str(x)
 else:
-    def encode(obj, chain=None):
-        """
-        Data encoder for serializing numpy data types.
-        """
+    if sys.platform == 'darwin':
+        ndarray_to_bytes = lambda obj: obj.tobytes()
+    else:
+        ndarray_to_bytes = lambda obj: memoryview(obj.data) if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
 
-        if isinstance(obj, np.ndarray):
-            # If the dtype is structured, store the interface description;
-            # otherwise, store the corresponding array protocol type string:
-            if obj.dtype.kind == 'V':
-                kind = b'V'
-                descr = obj.dtype.descr
-            else:
-                kind = b''
-                descr = obj.dtype.str
-            return {b'nd': True,
-                    b'type': descr,
-                    b'kind': kind,
-                    b'shape': obj.shape,
-                    b'data': memoryview(obj.data) if obj.flags['C_CONTIGUOUS'] else obj.tobytes()}
-        elif isinstance(obj, (np.bool_, np.number)):
-            return {b'nd': False,
-                    b'type': obj.dtype.str,
-                    b'data': memoryview(obj.data)}
-        elif isinstance(obj, complex):
-            return {b'complex': True,
-                    b'data': obj.__repr__()}
-        else:
-            return obj if chain is None else chain(obj)
+    num_to_bytes = lambda obj: memoryview(obj.data)
 
     def tostr(x):
         return x
+
+def encode(obj, chain=None):
+    """
+    Data encoder for serializing numpy data types.
+    """
+
+    if isinstance(obj, np.ndarray):
+        # If the dtype is structured, store the interface description;
+        # otherwise, store the corresponding array protocol type string:
+        if obj.dtype.kind == 'V':
+            kind = b'V'
+            descr = obj.dtype.descr
+        else:
+            kind = b''
+            descr = obj.dtype.str
+        return {b'nd': True,
+                b'type': descr,
+                b'kind': kind,
+                b'shape': obj.shape,
+                b'data': ndarray_to_bytes(obj)}
+    elif isinstance(obj, (np.bool_, np.number)):
+        return {b'nd': False,
+                b'type': obj.dtype.str,
+                b'data': num_to_bytes(obj)}
+    elif isinstance(obj, complex):
+        return {b'complex': True,
+                b'data': obj.__repr__()}
+    else:
+        return obj if chain is None else chain(obj)
 
 def decode(obj, chain=None):
     """

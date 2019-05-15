@@ -14,6 +14,8 @@ native complex data types is also supported.
 .. image:: https://img.shields.io/pypi/v/msgpack-numpy.svg
     :target: https://pypi.python.org/pypi/msgpack-numpy
     :alt: Latest Version
+.. image:: https://travis-ci.org/lebedov/msgpack-numpy.svg?branch=master
+    :target: https://travis-ci.org/lebedov/msgpack-numpy
 
 Installation
 ------------

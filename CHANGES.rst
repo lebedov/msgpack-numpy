@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.5 (In Development)
+------------------------------
+* Configure contiguous integration with Travis.
+
 Release 0.4.4.2 (November 8, 2018)
 ----------------------------------
 * Fix regression handling noncontiguous arrays (#34).

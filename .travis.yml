@@ -11,4 +11,4 @@ python:
     - 3.7
 
 script:
-    - python msgpack_numpy.py
+    - python tests.py

@@ -26,9 +26,11 @@ class test_numpy_msgpack(TestCase):
     def setUp(self):
          patch()
 
-    def encode_decode(self, x, use_bin_type=False, raw=True):
+    def encode_decode(self, x, use_bin_type=False, raw=True,
+                      use_list=True, max_bin_len=-1):
         x_enc = msgpack.packb(x, use_bin_type=use_bin_type)
-        return msgpack.unpackb(x_enc, raw=raw)
+        return msgpack.unpackb(x_enc, raw=raw, use_list=use_list,
+                               max_bin_len=max_bin_len)
 
     def encode_thirdparty(self, obj):
         return dict(__thirdparty__=True, foo=obj.foo)
@@ -38,10 +40,13 @@ class test_numpy_msgpack(TestCase):
             return ThirdParty(foo=obj[b'foo'])
         return obj
 
-    def encode_decode_thirdparty(self, x, use_bin_type=False, raw=True):
+    def encode_decode_thirdparty(self, x, use_bin_type=False, raw=True,
+            use_list=True, max_bin_len=-1):
         x_enc = msgpack.packb(x, default=self.encode_thirdparty,
                               use_bin_type=use_bin_type)
-        return msgpack.unpackb(x_enc, raw=raw, object_hook=self.decode_thirdparty)
+        return msgpack.unpackb(x_enc, raw=raw,
+                               object_hook=self.decode_thirdparty,
+                               use_list=use_list, max_bin_len=max_bin_len)
 
     def test_bin(self):
         # Since bytes == str in Python 2.7, the following
@@ -192,6 +197,16 @@ class test_numpy_msgpack(TestCase):
     def test_numpy_array_float_2d(self):
         x = np.random.rand(5,5).astype(np.float32)
         x_rec = self.encode_decode(x)
+        assert_array_equal(x, x_rec)
+        assert_equal(x.dtype, x_rec.dtype)
+
+    def test_numpy_array_float_2d_macos(self):
+        """
+        Unit test for weird data loss error on MacOS (#35).
+        """
+        x = np.random.rand(5,5).astype(np.float32)
+        x_rec = self.encode_decode(x, use_bin_type=True, raw=False,
+                                   use_list=False, max_bin_len=50000000)
         assert_array_equal(x, x_rec)
         assert_equal(x.dtype, x_rec.dtype)
 

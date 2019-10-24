@@ -59,6 +59,15 @@ If msgpack was not compiled with Cython (or if the ``MSGPACK_PUREPYTHON``
 variable is set), it will fall back to using the slower pure Python msgpack 
 implementation.
 
+Notes
+-----
+The primary design goal of msgpack-numpy is ensuring preservation of numerical
+data types during msgpack serialization and deserialization. Inclusion of type
+information in the serialized data necessarily incurs some storage overhead; if
+preservation of type information is not needed, one may be able to avoid some
+of this overhead by writing a custom encoder/decoder pair that produces more
+efficient serializations for those specific use cases.
+
 Development
 -----------
 The latest source code can be obtained from

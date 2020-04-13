@@ -3,6 +3,10 @@
 Change Log
 ==========
 
+Release 0.4.5 (April 12, 2020)
+------------------------------
+* Set defaults appropriate to msgpack 1.0.0 (#38).
+
 Release 0.4.4.3 (May 16, 2019)
 ------------------------------
 * Configure contiguous integration with Travis.

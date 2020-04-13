@@ -4,7 +4,7 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2019, Lev E. Givon
+# Copyright (c) 2013-2020, Lev E. Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license

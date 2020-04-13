@@ -129,7 +129,7 @@ if msgpack.version < (0, 4, 0):
                                            unicode_errors=unicode_errors,
                                            max_buffer_size=max_buffer_size)
 
-else:
+elif msgpack.version < (1, 0, 0):
     class Packer(_Packer):
         def __init__(self, default=None,
                      unicode_errors='strict',
@@ -163,6 +163,63 @@ else:
                                            unicode_errors=unicode_errors,
                                            max_buffer_size=max_buffer_size,
                                            ext_hook=ext_hook)
+
+else:
+    class Packer(_Packer):
+        def __init__(self,
+                     default=None,
+                     use_single_float=False,
+                     autoreset=True,
+                     use_bin_type=True,
+                     strict_types=False,
+                     datetime=False,
+                     unicode_errors=None):
+            default = functools.partial(encode, chain=default)
+            super(Packer, self).__init__(default=default,
+                                         use_single_float=use_single_float,
+                                         autoreset=autoreset,
+                                         use_bin_type=use_bin_type,
+                                         strict_types=strict_types,
+                                         datetime=datetime,
+                                         unicode_errors=unicode_errors)
+
+    class Unpacker(_Unpacker):
+        def __init__(self,
+                     file_like=None,
+                     read_size=0,
+                     use_list=True,
+                     raw=False,
+                     timestamp=0,
+                     strict_map_key=True,
+                     object_hook=None,
+                     object_pairs_hook=None,
+                     list_hook=None,
+                     unicode_errors=None,
+                     max_buffer_size=100 * 1024 * 1024,
+                     ext_hook=msgpack.ExtType,
+                     max_str_len=-1,
+                     max_bin_len=-1,
+                     max_array_len=-1,
+                     max_map_len=-1,
+                     max_ext_len=-1):
+            object_hook = functools.partial(decode, chain=object_hook)
+            super(Unpacker, self).__init__(file_like=file_like,
+                                           read_size=read_size,
+                                           use_list=use_list,
+                                           raw=raw,
+                                           timestamp=timestamp,
+                                           strict_map_key=strict_map_key,
+                                           object_hook=object_hook,
+                                           object_pairs_hook=object_pairs_hook,
+                                           list_hook=list_hook,
+                                           unicode_errors=unicode_errors,
+                                           max_buffer_size=max_buffer_size,
+                                           ext_hook=ext_hook,
+                                           max_str_len=max_str_len,
+                                           max_bin_len=max_bin_len,
+                                           max_array_len=max_array_len,
+                                           max_map_len=max_map_len,
+                                           max_ext_len=max_ext_len)
 
 def pack(o, stream, **kwargs):
     """

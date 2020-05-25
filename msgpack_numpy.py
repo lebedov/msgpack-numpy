@@ -135,7 +135,7 @@ elif msgpack.version < (1, 0, 0):
                      unicode_errors='strict',
                      use_single_float=False,
                      autoreset=1,
-                     use_bin_type=0,
+                     use_bin_type=True,
                      strict_types=False):
             default = functools.partial(encode, chain=default)
             super(Packer, self).__init__(default=default,
@@ -147,7 +147,7 @@ elif msgpack.version < (1, 0, 0):
 
     class Unpacker(_Unpacker):
         def __init__(self, file_like=None, read_size=0, use_list=None,
-                     raw=True,
+                     raw=False,
                      object_hook=None,
                      object_pairs_hook=None, list_hook=None,
                      unicode_errors='strict', max_buffer_size=0,

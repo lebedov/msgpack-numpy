@@ -1,5 +1,7 @@
-.. -*- rst -*-
-
+<!---
+-*- mode:markdown -*-
+vi:ft=markdown
+-->
 License
 =======
 

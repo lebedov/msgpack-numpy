@@ -6,12 +6,12 @@ import re
 from setuptools import setup
 
 NAME =               'msgpack-numpy'
-VERSION =            '0.4.5'
+VERSION =            '0.4.6'
 AUTHOR =             'Lev E. Givon'
 AUTHOR_EMAIL =       'lev@columbia.edu'
 URL =                'https://github.com/lebedov/msgpack-numpy'
 DESCRIPTION =        'Numpy data serialization using msgpack'
-with open('README.rst', 'r') as f:
+with open('README.md', 'r') as f:
     LONG_DESCRIPTION = f.read()
 LONG_DESCRIPTION = re.search('.*(^Package Description.*)', LONG_DESCRIPTION, re.MULTILINE|re.DOTALL).group(1)
 DOWNLOAD_URL =       URL

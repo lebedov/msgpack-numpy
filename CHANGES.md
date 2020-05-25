@@ -1,7 +1,14 @@
-.. -*- rst -*-
-
+<!-- 
+-*- mode:markdown -*-
+vi:ft=markdown
+-->
 Change Log
 ==========
+
+Release 0.4.6 (May 25, 2020)
+----------------------------
+* Set default use_bin_type and raw params of Packer and Unpacker classes the same as in msgpack (#39).
+* Convert docs to Markdown.
 
 Release 0.4.5 (April 12, 2020)
 ------------------------------

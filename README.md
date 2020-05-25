@@ -1,5 +1,7 @@
-.. -*- rst -*-
-
+<!---
+-*- mode:markdown -*-
+vi:ft=markdown
+-->
 Numpy Data Type Serialization Using Msgpack
 ===========================================
 
@@ -7,26 +9,23 @@ Package Description
 -------------------
 This package provides encoding and decoding routines that enable the
 serialization and deserialization of numerical and array data types provided by 
-`numpy <http://www.numpy.org/>`_ using the highly efficient
-`msgpack <http://msgpack.org/>`_ format. Serialization of Python's
+[numpy](http://www.numpy.org/) using the highly efficient
+[msgpack](http://msgpack.org/) format. Serialization of Python's
 native complex data types is also supported.
 
-.. image:: https://img.shields.io/pypi/v/msgpack-numpy.svg
-    :target: https://pypi.python.org/pypi/msgpack-numpy
-    :alt: Latest Version
-.. image:: https://travis-ci.org/lebedov/msgpack-numpy.svg?branch=master
-    :target: https://travis-ci.org/lebedov/msgpack-numpy
+[![Latest Version](https://img.shields.io/pypi/v/msgpack-numpy.svg)](https://pypi.python.org/pypi/msgpack-numpy)
+[![Build Status](https://travis-ci.org/lebedov/msgpack-numpy.svg?branch=master)](https://travis-ci.org/lebedov/msgpack-numpy)
 
 Installation
 ------------
 msgpack-numpy requires msgpack-python and numpy. If you 
-have `pip <http://www.pip-installer.org/>`_ installed on your
-system, run ::
+have [pip](<http://www.pip-installer.org/) installed on your
+system, run
 
     pip install msgpack-numpy
 
 to install the package and all dependencies. You can also download 
-the source tarball, unpack it, and run ::
+the source tarball, unpack it, and run
 
     python setup.py install
 
@@ -35,7 +34,7 @@ from within the source directory.
 Usage
 -----
 The easiest way to use msgpack-numpy is to call its monkey patching
-function after importing the Python msgpack package: ::
+function after importing the Python msgpack package:
 
     import msgpack
     import msgpack_numpy as m
@@ -70,19 +69,15 @@ efficient serializations for those specific use cases.
 
 Development
 -----------
-The latest source code can be obtained from
-`GitHub <https://github.com/lebedov/msgpack-numpy/>`_.
+The latest source code can be obtained from [GitHub](https://github.com/lebedov/msgpack-numpy/).
 
 Authors
 -------
-See the included `AUTHORS.rst 
-<https://github.com/lebedov/msgpack-numpy/blob/master/AUTHORS.rst>`_ file for 
+See the included [AUTHORS.md](https://github.com/lebedov/msgpack-numpy/blob/master/AUTHORS.md) file for 
 more information.
 
 License
 -------
-This software is licensed under the `BSD License 
-<http://www.opensource.org/licenses/bsd-license>`_.
-See the included `LICENSE.rst 
-<https://github.com/lebedov/msgpack-numpy/blob/master/LICENSE.rst>`_ file for 
+This software is licensed under the [BSD License](http://www.opensource.org/licenses/bsd-license).
+See the included [LICENSE.md](https://github.com/lebedov/msgpack-numpy/blob/master/LICENSE.rst) file for 
 more information.

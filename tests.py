@@ -26,40 +26,40 @@ class test_numpy_msgpack(TestCase):
     def setUp(self):
          patch()
 
-    def encode_decode(self, x, use_bin_type=False, raw=True,
-                      use_list=True, max_bin_len=-1):
-        x_enc = msgpack.packb(x, use_bin_type=use_bin_type)
-        return msgpack.unpackb(x_enc, raw=raw, use_list=use_list,
+    def encode_decode(self, x, use_list=True, max_bin_len=-1):
+        x_enc = msgpack.packb(x)
+        return msgpack.unpackb(x_enc, use_list=use_list,
                                max_bin_len=max_bin_len)
 
     def encode_thirdparty(self, obj):
-        return dict(__thirdparty__=True, foo=obj.foo)
+        return {b'__thirdparty__': True, b'foo': obj.foo}
 
     def decode_thirdparty(self, obj):
         if b'__thirdparty__' in obj:
             return ThirdParty(foo=obj[b'foo'])
         return obj
 
-    def encode_decode_thirdparty(self, x, use_bin_type=False, raw=True,
+    def encode_decode_thirdparty(self, x,
             use_list=True, max_bin_len=-1):
-        x_enc = msgpack.packb(x, default=self.encode_thirdparty,
-                              use_bin_type=use_bin_type)
-        return msgpack.unpackb(x_enc, raw=raw,
+        x_enc = msgpack.packb(x, default=self.encode_thirdparty)
+        return msgpack.unpackb(x_enc,
                                object_hook=self.decode_thirdparty,
                                use_list=use_list, max_bin_len=max_bin_len)
 
     def test_bin(self):
-        # Since bytes == str in Python 2.7, the following
-        # should pass on both 2.7 and 3.*
-        assert_equal(type(self.encode_decode(b'foo')), bytes)
+        # str == bytes on Python 2:
+        if sys.version_info.major == 2:
+            assert_equal(type(self.encode_decode(b'foo')), str)
+        else:
+            assert_equal(type(self.encode_decode(b'foo')), bytes)
 
     def test_str(self):
-        assert_equal(type(self.encode_decode('foo')), bytes)
+        # str != unicode on Python 2:
         if sys.version_info.major == 2:
+            assert_equal(type(self.encode_decode('foo')), str)
+            assert_equal(type(self.encode_decode(u'foo')), unicode)
+        else:
             assert_equal(type(self.encode_decode(u'foo')), str)
-
-            # Test non-default string encoding/decoding:
-            assert_equal(type(self.encode_decode(u'foo', True, False)), unicode)
 
     def test_numpy_scalar_bool(self):
         x = np.bool_(True)
@@ -204,9 +204,8 @@ class test_numpy_msgpack(TestCase):
         """
         Unit test for weird data loss error on MacOS (#35).
         """
-        x = np.random.rand(5,5).astype(np.float32)
-        x_rec = self.encode_decode(x, use_bin_type=True, raw=False,
-                                   use_list=False, max_bin_len=50000000)
+        x = np.random.rand(5, 5).astype(np.float32)
+        x_rec = self.encode_decode(x, use_list=False, max_bin_len=50000000)
         assert_array_equal(x, x_rec)
         assert_equal(x.dtype, x_rec.dtype)
 

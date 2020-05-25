@@ -79,5 +79,5 @@ more information.
 License
 -------
 This software is licensed under the [BSD License](http://www.opensource.org/licenses/bsd-license).
-See the included [LICENSE.md](https://github.com/lebedov/msgpack-numpy/blob/master/LICENSE.rst) file for 
+See the included [LICENSE.md](https://github.com/lebedov/msgpack-numpy/blob/master/LICENSE.md) file for 
 more information.

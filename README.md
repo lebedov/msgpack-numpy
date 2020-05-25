@@ -43,7 +43,7 @@ function after importing the Python msgpack package:
 This will automatically force all msgpack serialization and deserialization
 routines (and other packages that use them) to become numpy-aware. 
 Of course, one can also manually pass the encoder and 
-decoder provided by msgpack-numpy to the msgpack routines: ::
+decoder provided by msgpack-numpy to the msgpack routines:
 
     import msgpack
     import msgpack_numpy as m

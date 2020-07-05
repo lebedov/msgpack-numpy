@@ -67,6 +67,9 @@ preservation of type information is not needed, one may be able to avoid some
 of this overhead by writing a custom encoder/decoder pair that produces more
 efficient serializations for those specific use cases.
 
+Note that numpy arrays deserialized by msgpack-numpy are read-only and must be copied 
+if they are to be modified.
+
 Development
 -----------
 The latest source code can be obtained from [GitHub](https://github.com/lebedov/msgpack-numpy/).

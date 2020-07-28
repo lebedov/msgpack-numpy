@@ -5,6 +5,10 @@ vi:ft=markdown
 Change Log
 ==========
 
+Release 0.4.6.1 (July 28, 2020)
+-------------------------------
+* Deprecate support for msgpack < 1.0.0 (#41).
+
 Release 0.4.6 (May 25, 2020)
 ----------------------------
 * Set default use_bin_type and raw params of Packer and Unpacker classes the same as in msgpack (#39).

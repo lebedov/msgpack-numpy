@@ -11,6 +11,7 @@ Support for serialization of numpy data types with msgpack.
 
 import sys
 import functools
+import warnings
 
 import msgpack
 from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
@@ -98,6 +99,10 @@ def decode(obj, chain=None):
             return obj if chain is None else chain(obj)
     except KeyError:
         return obj if chain is None else chain(obj)
+
+if msgpack.version < (1, 0, 0):
+    warnings.warn('support for msgpack < 1.0.0 will be removed in a future release',
+                   DeprecationWarning)
 
 # Maintain support for msgpack < 0.4.0:
 if msgpack.version < (0, 4, 0):

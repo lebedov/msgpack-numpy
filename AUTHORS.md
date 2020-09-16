@@ -9,6 +9,7 @@ This software was written and packaged by [Lev E. Givon](https://github.com/lebe
 
 Special thanks are due to the following parties for their contributions:
 
+- [Alex Ford](https://github.com/asford) - bug fix.
 - [Colin Jermain](https://github.com/cjermain) - Python 3 support.
 - [John Tyree](https://github.com/johntyree) - support for numpy scalar booleans.
 - [Mehdi Sadeghi](https://github.com/mehdisadeghi) - bug reports.

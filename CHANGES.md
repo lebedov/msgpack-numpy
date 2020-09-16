@@ -5,6 +5,10 @@ vi:ft=markdown
 Change Log
 ==========
 
+Release 0.4.7 (September 16, 2020)
+----------------------------------
+* Fix bug unpacking nested, structured dtypes (#42).
+
 Release 0.4.6.1 (July 28, 2020)
 -------------------------------
 * Deprecate support for msgpack < 1.0.0 (#41).

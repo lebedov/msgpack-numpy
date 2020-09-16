@@ -88,17 +88,29 @@ def decode(obj, chain=None):
                 else:
                     descr = obj[b'type']
                 return np.frombuffer(obj[b'data'],
-                            dtype=np.dtype(descr)).reshape(obj[b'shape'])
+                            dtype=_unpack_dtype(descr)).reshape(obj[b'shape'])
             else:
                 descr = obj[b'type']
                 return np.frombuffer(obj[b'data'],
-                            dtype=np.dtype(descr))[0]
+                            dtype=_unpack_dtype(descr))[0]
         elif b'complex' in obj:
             return complex(tostr(obj[b'data']))
         else:
             return obj if chain is None else chain(obj)
     except KeyError:
         return obj if chain is None else chain(obj)
+
+def _unpack_dtype(dtype):
+    """
+    Unpack dtype descr, recursively unpacking nested structured dtypes.
+    """
+
+    if isinstance(dtype, (list, tuple)):
+        dtype = [
+            (name, _unpack_dtype(subdtype)) + tuple(rest)
+            for name, subdtype, *rest in dtype
+        ]
+    return np.dtype(dtype)
 
 if msgpack.version < (1, 0, 0):
     warnings.warn('support for msgpack < 1.0.0 will be removed in a future release',

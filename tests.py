@@ -243,5 +243,44 @@ class test_numpy_msgpack(TestCase):
         x_rec = self.encode_decode_thirdparty(x)
         self.assertEqual(x, x_rec)
 
+    def test_numpy_structured_array(self):
+        structured_dtype = np.dtype([("a", float), ("b", int)])
+
+        x = np.empty((10,), dtype=structured_dtype)
+        x["a"] = np.arange(10)
+        x["b"] = np.arange(10)
+
+        x_rec = self.encode_decode(x)
+
+        assert_array_equal(x, x_rec)
+        self.assertEqual(x.dtype, x_rec.dtype)
+
+    def test_numpy_shaped_structured_array(self):
+        shaped_structured_dtype = np.dtype([("a", float, 3), ("b", int)])
+
+        x = np.empty((10,), dtype=shaped_structured_dtype)
+        x["a"] = np.arange(30).reshape(10, 3)
+        x["b"] = np.arange(10)
+
+        x_rec = self.encode_decode(x)
+
+        assert_array_equal(x, x_rec)
+        self.assertEqual(x.dtype, x_rec.dtype)
+
+    def test_numpy_nested_structured_array(self):
+        structured_dtype = np.dtype([("a", float), ("b", int)])
+        nested_dtype = np.dtype([("foo", structured_dtype), ("bar", structured_dtype)])
+
+        x = np.empty((10,), dtype=nested_dtype)
+        x["foo"]["a"] = np.arange(10)
+        x["foo"]["b"] = np.arange(10)
+        x["bar"]["a"] = np.arange(10) + 10
+        x["bar"]["b"] = np.arange(10) + 10
+
+        x_rec = self.encode_decode(x)
+
+        assert_array_equal(x, x_rec)
+        self.assertEqual(x.dtype, x_rec.dtype)
+
 if __name__ == '__main__':
     main()

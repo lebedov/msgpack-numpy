@@ -74,6 +74,24 @@ Development
 -----------
 The latest source code can be obtained from [GitHub](https://github.com/lebedov/msgpack-numpy/).
 
+msgpack-numpy maintains compatibility with python versions 2.7 and 3.5+.
+
+Install [`tox`](https://tox.readthedocs.io/en/latest/) to support testing
+across multiple python versions in your development environment. If you
+use [`conda`](https://docs.conda.io/en/latest/) to install `python` use
+[`tox-conda`](https://github.com/tox-dev/tox-conda) to automatically manage
+testing across all supported python versions.
+    
+    # Using a system python
+    pip install tox
+
+    # Additionally, using a conda-provided python
+    pip install tox tox-conda
+
+Execute tests across supported python versions:
+    
+    tox
+
 Authors
 -------
 See the included [AUTHORS.md](https://github.com/lebedov/msgpack-numpy/blob/master/AUTHORS.md) file for 

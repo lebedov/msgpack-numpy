@@ -106,9 +106,10 @@ def _unpack_dtype(dtype):
     """
 
     if isinstance(dtype, (list, tuple)):
+        # Unpack structured dtypes of the form: (name, type, *shape)
         dtype = [
-            (name, _unpack_dtype(subdtype)) + tuple(rest)
-            for name, subdtype, *rest in dtype
+            (subdtype[0], _unpack_dtype(subdtype[1])) + tuple(subdtype[2:])
+            for subdtype in dtype
         ]
     return np.dtype(dtype)
 

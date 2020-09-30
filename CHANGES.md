@@ -5,6 +5,10 @@ vi:ft=markdown
 Change Log
 ==========
 
+Release 0.4.7.1 (September 30, 2020)
+------------------------------------
+* Fix Python 2.7 regression (#45).
+
 Release 0.4.7 (September 16, 2020)
 ----------------------------------
 * Fix bug unpacking nested, structured dtypes (#42).

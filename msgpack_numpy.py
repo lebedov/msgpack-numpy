@@ -87,12 +87,10 @@ def decode(obj, chain=None):
                              for d in obj[b'type']]
                 else:
                     descr = obj[b'type']
-                return np.frombuffer(obj[b'data'],
-                            dtype=_unpack_dtype(descr)).reshape(obj[b'shape'])
+                return np.ndarray(obj[b'shape'], _unpack_dtype(descr), obj[b'data'])
             else:
                 descr = obj[b'type']
-                return np.frombuffer(obj[b'data'],
-                            dtype=_unpack_dtype(descr))[0]
+                return np.ndarray((1,), _unpack_dtype(descr), obj[b'data'])[0]
         elif b'complex' in obj:
             return complex(tostr(obj[b'data']))
         else:

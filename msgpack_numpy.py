@@ -18,6 +18,7 @@ from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
     unpack as _unpack, unpackb as _unpackb
 import numpy as np
 
+# WIP: correctly serialize object arrays (e.g. arrays of variable-length strings)
 if sys.version_info >= (3, 0):
     if sys.platform == 'darwin':
         ndarray_to_bytes = lambda obj: obj.tobytes()

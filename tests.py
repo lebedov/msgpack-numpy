@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import gc
 import sys
 from unittest import main, TestCase
 
@@ -282,14 +283,27 @@ class test_numpy_msgpack(TestCase):
         assert_array_equal(x, x_rec)
         self.assertEqual(x.dtype, x_rec.dtype)
 
-    def test_numpy_object_array(self):
+    def test_numpy_object_str_array(self):
         dtype = "O"
 
-        x = np.array(["a", "ab", "abc"], dtype=dtype)
-        x_rec = self.encode_decode(x)
+        x = np.array(["a", "ab", "a"*5000], dtype=dtype)
 
-        assert_array_equal(x, x_rec)
-        self.assertEqual(x.dtype, x_rec.dtype)
+        # encode
+        x_enc = msgpack.packb(x)
+
+        # call the garbage collector to free the memory of objects in array
+        del x
+        gc.collect()
+
+        # decode
+        x_rec = msgpack.unpackb(x_enc, use_list=True, max_bin_len=-1)
+
+        # check
+        a, ab, a5000 = x_rec
+        self.assertEqual(a == "a")
+        self.assertEqual(b == "ab")
+        self.assertEqual(a5000 == "a"*5000)
+        self.assertEqual(dtype, x_rec.dtype)
 
 if __name__ == '__main__':
     main()

@@ -5,6 +5,10 @@ vi:ft=markdown
 Change Log
 ==========
 
+Release 0.4.8 (April 28, 2022)
+------------------------------
+* Add support for ndarrays with dtype=object (#46).
+
 Release 0.4.7.1 (September 30, 2020)
 ------------------------------------
 * Fix Python 2.7 regression (#45).

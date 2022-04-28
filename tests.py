@@ -188,6 +188,12 @@ class test_numpy_msgpack(TestCase):
         assert_array_equal(x, x_rec)
         assert_equal(x.dtype, x_rec.dtype)
 
+    def test_numpy_array_object(self):
+        x = np.random.rand(5).astype(object)
+        x_rec = self.encode_decode(x)
+        assert_array_equal(x, x_rec)
+        assert_equal(x.dtype, x_rec.dtype)
+
     def test_numpy_array_complex(self):
         x = (np.random.rand(5)+1j*np.random.rand(5)).astype(np.complex128)
         x_rec = self.encode_decode(x)

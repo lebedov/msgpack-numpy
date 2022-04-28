@@ -65,7 +65,14 @@ data types during msgpack serialization and deserialization. Inclusion of type
 information in the serialized data necessarily incurs some storage overhead; if
 preservation of type information is not needed, one may be able to avoid some
 of this overhead by writing a custom encoder/decoder pair that produces more
-efficient serializations for those specific use cases.
+efficient serializations for those specific use cases. 
+
+Numpy arrays with a dtype of 'O' are serialized/deserialized using pickle as 
+a fallback solution to enable msgpack-numpy to handle
+such arrays. As the additional overhead of pickle serialization negates one
+of the reasons to use msgpack, it may be advisable to either write a custom
+encoder/decoder to handle the specific use case efficiently or else not bother
+using msgpack-numpy.
 
 Note that numpy arrays deserialized by msgpack-numpy are read-only and must be copied 
 if they are to be modified.

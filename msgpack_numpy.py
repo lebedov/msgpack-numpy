@@ -4,13 +4,14 @@
 Support for serialization of numpy data types with msgpack.
 """
 
-# Copyright (c) 2013-2020, Lev E. Givon
+# Copyright (c) 2013-2022, Lev E. Givon
 # All rights reserved.
 # Distributed under the terms of the BSD license:
 # http://www.opensource.org/licenses/bsd-license
 
 import sys
 import functools
+import pickle
 import warnings
 
 import msgpack
@@ -19,10 +20,14 @@ from msgpack import Packer as _Packer, Unpacker as _Unpacker, \
 import numpy as np
 
 if sys.version_info >= (3, 0):
-    if sys.platform == 'darwin':
-        ndarray_to_bytes = lambda obj: obj.tobytes()
-    else:
-        ndarray_to_bytes = lambda obj: obj.data if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
+    def ndarray_to_bytes(obj):
+        if obj.dtype == 'O':
+            return obj.dumps()
+        else:
+            if sys.platform == 'darwin':
+                return obj.tobytes()
+            else:
+                return obj.data if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
 
     num_to_bytes = lambda obj: obj.data
 
@@ -32,10 +37,14 @@ if sys.version_info >= (3, 0):
         else:
             return str(x)
 else:
-    if sys.platform == 'darwin':
-        ndarray_to_bytes = lambda obj: obj.tobytes()
-    else:
-        ndarray_to_bytes = lambda obj: memoryview(obj.data) if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
+    def ndarray_to_bytes(obj):
+        if obj.dtype == 'O':
+            return obj.dumps()
+        else:
+            if sys.platform == 'darwin':
+                return obj.tobytes()
+            else:
+                return memoryview(obj.data) if obj.flags['C_CONTIGUOUS'] else obj.tobytes()
 
     num_to_bytes = lambda obj: memoryview(obj.data)
 
@@ -50,12 +59,13 @@ def encode(obj, chain=None):
     if isinstance(obj, np.ndarray):
         # If the dtype is structured, store the interface description;
         # otherwise, store the corresponding array protocol type string:
-        if obj.dtype.kind == 'V':
-            kind = b'V'
+        if obj.dtype.kind in ('V', 'O'):
+            kind = bytes(obj.dtype.kind, 'ascii')
             descr = obj.dtype.descr
         else:
             kind = b''
             descr = obj.dtype.str
+
         return {b'nd': True,
                 b'type': descr,
                 b'kind': kind,
@@ -81,14 +91,18 @@ def decode(obj, chain=None):
             if obj[b'nd'] is True:
 
                 # Check if b'kind' is in obj to enable decoding of data
-                # serialized with older versions (#20):
+                # serialized with older versions (#20) or data
+                # that had dtype == 'O' (#46):
                 if b'kind' in obj and obj[b'kind'] == b'V':
                     descr = [tuple(tostr(t) if type(t) is bytes else t for t in d) \
                              for d in obj[b'type']]
+                elif b'kind' in obj and obj[b'kind'] == b'O':
+                    return pickle.loads(obj[b'data'])
                 else:
                     descr = obj[b'type']
-                return np.frombuffer(obj[b'data'],
-                            dtype=_unpack_dtype(descr)).reshape(obj[b'shape'])
+                return np.ndarray(buffer=obj[b'data'],
+                                  dtype=_unpack_dtype(descr),
+                                  shape=obj[b'shape'])
             else:
                 descr = obj[b'type']
                 return np.frombuffer(obj[b'data'],

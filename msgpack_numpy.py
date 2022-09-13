@@ -51,7 +51,7 @@ else:
     def tostr(x):
         return x
 
-def encode(obj, chain=None):
+def encode(obj, chain=None, allow_pickle=True):
     """
     Data encoder for serializing numpy data types.
     """
@@ -60,6 +60,8 @@ def encode(obj, chain=None):
         # If the dtype is structured, store the interface description;
         # otherwise, store the corresponding array protocol type string:
         if obj.dtype.kind in ('V', 'O'):
+            if obj.dtype.kind == 'O' and not allow_pickle:
+                raise ValueError("Can't pickle object arrays if allow_pickle is False")
             kind = bytes(obj.dtype.kind, 'ascii')
             descr = obj.dtype.descr
         else:
@@ -81,7 +83,7 @@ def encode(obj, chain=None):
     else:
         return obj if chain is None else chain(obj)
 
-def decode(obj, chain=None):
+def decode(obj, chain=None, allow_pickle=True):
     """
     Decoder for deserializing numpy data types.
     """
@@ -97,6 +99,8 @@ def decode(obj, chain=None):
                     descr = [tuple(tostr(t) if type(t) is bytes else t for t in d) \
                              for d in obj[b'type']]
                 elif b'kind' in obj and obj[b'kind'] == b'O':
+                    if not allow_pickle:
+                        raise ValueError("Can't unpickle object arrays if allow_pickle is False")
                     return pickle.loads(obj[b'data'])
                 else:
                     descr = obj[b'type']

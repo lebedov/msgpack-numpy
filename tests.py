@@ -288,5 +288,13 @@ class test_numpy_msgpack(TestCase):
         assert_array_equal(x, x_rec)
         self.assertEqual(x.dtype, x_rec.dtype)
 
+class test_numpy_msgpack_no_pickle(test_numpy_msgpack):
+    def setUp(self):
+        patch(allow_pickle=False)
+
+    def test_numpy_array_object(self):
+        x = np.random.rand(5).astype(object)
+        self.assertRaises(ValueError, self.encode_decode, x)
+
 if __name__ == '__main__':
     main()

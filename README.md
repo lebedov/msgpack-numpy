@@ -109,3 +109,9 @@ License
 This software is licensed under the [BSD License](http://www.opensource.org/licenses/bsd-license).
 See the included [LICENSE.md](https://github.com/lebedov/msgpack-numpy/blob/master/LICENSE.md) file for 
 more information.
+
+See Also
+--------
+[msgpack-numpy-js](https://github.com/emerald-geomodelling/msgpack-numpy-js) by 
+[Egil Möller](https://github.com/redhog) is a JavaScript library that can 
+serialize and deserialize JS typed arrays with msgpack.

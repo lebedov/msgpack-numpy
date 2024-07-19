@@ -115,3 +115,7 @@ See Also
 [msgpack-numpy-js](https://github.com/emerald-geomodelling/msgpack-numpy-js) by 
 [Egil Möller](https://github.com/redhog) is a JavaScript library that can 
 serialize and deserialize JS typed arrays with msgpack.
+
+[msgpack-numpy-rs](https://github.com/clearviewai/msgpack-numpy-rs) by [
+Terrence Liu](https://github.com/terencezl) is a Rust crate (mostly) compatible with msgpack-numpy 
+that can serialize and deserialize numpy arrays with msgpack.

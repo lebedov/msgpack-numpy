@@ -5,6 +5,15 @@ vi:ft=markdown
 Change Log
 ==========
 
+Release 0.4.9 (unreleased)
+--------------------------
+* **Security (CWE-502):** unpickling of ``object``-dtype ndarrays (``kind=b'O'``)
+  is now disabled by default.  Callers must pass ``allow_pickle='restricted'``
+  for a restricted unpickler (numpy reconstruction primitives + safe builtins
+  only) or ``allow_pickle=True`` for the legacy ``pickle.loads`` behavior.
+  ``allow_pickle=True`` should only ever be used with fully trusted sources.
+  Refer to the README for details (#57).
+
 Release 0.4.8 (April 28, 2022)
 ------------------------------
 * Add support for ndarrays with dtype=object (#46).

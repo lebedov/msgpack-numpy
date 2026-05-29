@@ -189,10 +189,114 @@ class test_numpy_msgpack(TestCase):
         assert_equal(x.dtype, x_rec.dtype)
 
     def test_numpy_array_object(self):
+        # object-dtype arrays now require explicit opt-in (CWE-502).
         x = np.random.rand(5).astype(object)
-        x_rec = self.encode_decode(x)
+        x_enc = msgpack.packb(x)
+        x_rec = msgpack.unpackb(x_enc, allow_pickle='restricted')
         assert_array_equal(x, x_rec)
         assert_equal(x.dtype, x_rec.dtype)
+
+    def test_numpy_array_object_default_refuses(self):
+        # Default (allow_pickle=False) must refuse to deserialize the
+        # pickle-bearing object-dtype payload.
+        x = np.random.rand(5).astype(object)
+        x_enc = msgpack.packb(x)
+        with self.assertRaises(ValueError) as ctx:
+            msgpack.unpackb(x_enc)
+        self.assertIn('allow_pickle', str(ctx.exception))
+
+    def test_numpy_array_object_explicit_unrestricted(self):
+        # allow_pickle=True preserves the legacy pickle.loads behavior for
+        # users who consciously opt in.
+        x = np.random.rand(5).astype(object)
+        x_enc = msgpack.packb(x)
+        x_rec = msgpack.unpackb(x_enc, allow_pickle=True)
+        assert_array_equal(x, x_rec)
+        assert_equal(x.dtype, x_rec.dtype)
+
+    def test_pickle_rce_payload_default_refused(self):
+        # A hand-crafted msgpack payload that, with the legacy pickle path,
+        # would call os.system().  The default refuses to unpickle it at all,
+        # so the RCE never fires.
+        import os, pickle as _pickle
+        marker_path = '/tmp/msgpack_numpy_rce_test_marker_default'
+        try:
+            os.unlink(marker_path)
+        except OSError:
+            pass
+
+        class _RCE:
+            def __reduce__(self):
+                return (os.system, ('touch %s' % marker_path,))
+
+        crafted = {
+            b'nd': True,
+            b'kind': b'O',
+            b'type': b'O',
+            b'shape': (1,),
+            b'data': _pickle.dumps(_RCE()),
+        }
+        packed = msgpack.packb(crafted, use_bin_type=True)
+
+        with self.assertRaises(ValueError):
+            msgpack.unpackb(packed, raw=False)
+        self.assertFalse(os.path.exists(marker_path),
+                         "RCE payload executed despite allow_pickle=False")
+
+    def test_pickle_rce_payload_restricted_blocked(self):
+        # Same crafted payload, but with the restricted unpickler the
+        # os.system gadget is rejected by find_class().
+        import os, pickle as _pickle
+        marker_path = '/tmp/msgpack_numpy_rce_test_marker_restricted'
+        try:
+            os.unlink(marker_path)
+        except OSError:
+            pass
+
+        class _RCE:
+            def __reduce__(self):
+                return (os.system, ('touch %s' % marker_path,))
+
+        crafted = {
+            b'nd': True,
+            b'kind': b'O',
+            b'type': b'O',
+            b'shape': (1,),
+            b'data': _pickle.dumps(_RCE()),
+        }
+        packed = msgpack.packb(crafted, use_bin_type=True)
+
+        with self.assertRaises(_pickle.UnpicklingError):
+            msgpack.unpackb(packed, raw=False, allow_pickle='restricted')
+        self.assertFalse(os.path.exists(marker_path),
+                         "RCE payload executed despite restricted unpickler")
+
+    def test_pickle_eval_gadget_restricted_blocked(self):
+        # builtins.eval is on the explicit block list even though the
+        # 'builtins' module is otherwise allowed (numpy reconstruction needs
+        # bytes/str etc.).
+        import pickle as _pickle
+
+        class _Eval:
+            def __reduce__(self):
+                return (eval, ('1+1',))
+
+        crafted = {
+            b'nd': True,
+            b'kind': b'O',
+            b'type': b'O',
+            b'shape': (1,),
+            b'data': _pickle.dumps(_Eval()),
+        }
+        packed = msgpack.packb(crafted, use_bin_type=True)
+        with self.assertRaises(_pickle.UnpicklingError):
+            msgpack.unpackb(packed, raw=False, allow_pickle='restricted')
+
+    def test_allow_pickle_bad_value(self):
+        x = np.random.rand(5).astype(object)
+        x_enc = msgpack.packb(x)
+        with self.assertRaises(ValueError):
+            msgpack.unpackb(x_enc, allow_pickle='yes')
 
     def test_numpy_array_complex(self):
         x = (np.random.rand(5)+1j*np.random.rand(5)).astype(np.complex128)

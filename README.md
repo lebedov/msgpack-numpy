@@ -74,6 +74,24 @@ of the reasons to use msgpack, it may be advisable to either write a custom
 encoder/decoder to handle the specific use case efficiently or else not bother
 using msgpack-numpy.
 
+**Security note (CWE-502):** because deserializing the ``kind=b'O'`` payload
+calls ``pickle.loads`` and pickle can execute arbitrary code, msgpack-numpy
+refuses to unpickle ``object``-dtype payloads by default.  To round-trip such
+arrays you must opt in explicitly:
+
+```python
+# Restricted unpickler: numpy reconstruction primitives + safe Python
+# builtins only.  Refuses arbitrary callables and known RCE gadgets.
+arr = msgpack.unpackb(packed, allow_pickle='restricted')
+
+# Legacy behavior — equivalent to executing arbitrary code from the
+# payload.  Only use with fully trusted data sources.
+arr = msgpack.unpackb(packed, allow_pickle=True)
+```
+
+The default ``allow_pickle=False`` raises ``ValueError`` when a ``kind=b'O'``
+payload is encountered.
+
 Note that numpy arrays deserialized by msgpack-numpy are read-only and must be copied 
 if they are to be modified.
 
